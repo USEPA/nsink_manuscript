@@ -1,18 +1,24 @@
 ---
 title: 'NSync: Boy bands meet nitrogen'
 author:
-- Hollister. J. W. ^\*^ *^1^*, Kellogg, D. Q. *^2^*, Arnold, C.*^3^*, Gold,
+- |
+  Hollister. J. W. ^\*^ *^1^*, Kellogg, D. Q. *^2^*, Arnold, C.*^3^*, Gold,
   A.*^2^*, Wilson, E. H.*^3^*, Chadwick, C.*^3^*, Dickson, D.*^3^*, Forshay, K.
   J.*^4^*
-- *^1^* US Environmental Protection Agency, Office Of Research and Development,
+- |
+  *^1^* US Environmental Protection Agency, Office Of Research and Development,
   Atlantic Coastal Environmental Sciences Division, Narragansett, RI 02882
-- *^2^* University of Rhode Island, Department of Natural Resources Science,
+- |
+  *^2^* University of Rhode Island, Department of Natural Resources Science,
   Kingston, RI 02881
-- *^3^* University of Connecticut, Center for Land Use Education and Research,
+- |
+  *^3^* University of Connecticut, Center for Land Use Education and Research,
   Haddam, CT 06438
-- *^4^* US Environmental Protection Agency, Office Of Research and Development,
+- |
+  *^4^* US Environmental Protection Agency, Office Of Research and Development,
   Groundwater Characterization and Remediation Division, Ada, OK 74820
-- '^\*^ \*corresponding author: <hollister.jeff@epa.gov*>'
+- |
+  '^\*^ \*corresponding author: <hollister.jeff@epa.gov*>'
 bibliography: manuscript.bib
 output:
   word_document:
@@ -41,9 +47,9 @@ Methods
 
 Methods are what belong here and an inline fig citation looks like (`r fig_num("ww_map", display = "cite", caption = "Map of URI Watershed Watch lake and reservoir sampling sites")`) and to reference that fig, assuming it is an image file inside the ../figures folder would look this way [@bivand2014maptools].
 
-![Figure 1: Map of URI Watershed Watch lake and reservoir sampling sites](media/image1.jpg){width="5.7in" height="7.45in"}
+![`r fig_num("ww_map", caption = "Map of URI Watershed Watch lake and reservoir sampling sites")`](../figures/ww_map.jpg){width="5.7in" height="7.45in"}
 
-`r fig_num("ww_map", caption = "Map of URI Watershed Watch lake and reservoir sampling sites")`
+
 
 If you want some inline R code, do this `r nrow(iris)`.
 
