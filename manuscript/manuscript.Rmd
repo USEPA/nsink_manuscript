@@ -1,0 +1,67 @@
+---
+title: 'NSync: Boy bands meet nitrogen'
+author:
+- Hollister. J. W. ^\*^ *^1^*, Kellogg, D. Q. *^2^*, Arnold, C.*^3^*, Gold,
+  A.*^2^*, Wilson, E. H.*^3^*, Chadwick, C.*^3^*, Dickson, D.*^3^*, Forshay, K.
+  J.*^4^*
+- *^1^* US Environmental Protection Agency, Office Of Research and Development,
+  Atlantic Coastal Environmental Sciences Division, Narragansett, RI 02882
+- *^2^* University of Rhode Island, Department of Natural Resources Science,
+  Kingston, RI 02881
+- *^3^* University of Connecticut, Center for Land Use Education and Research,
+  Haddam, CT 06438
+- *^4^* US Environmental Protection Agency, Office Of Research and Development,
+  Groundwater Characterization and Remediation Division, Ada, OK 74820
+- '^\*^ \*corresponding author: <hollister.jeff@epa.gov*>'
+bibliography: manuscript.bib
+output:
+  word_document:
+    reference_docx: manuscript_template.docx
+editor_options:
+  chunk_output_type: console
+csl: ecology.csl
+abstract: Great abstract goes here
+---
+
+```{r setup, include=FALSE}
+source("../R/packages.R")
+opts_chunk$set(echo = TRUE, fig.width=6, fig.height=5)
+tab_num <- captioner(prefix = "Table")
+fig_num <- captioner(prefix = "Figure")
+options(scipen = 2, digits = 5)
+```
+
+Introduction
+============
+
+Intro goes here and citations look like [@vitousek1997human; @finlay2013human; @filippelli2008global].
+
+Methods
+=======
+
+Methods are what belong here and an inline fig citation looks like (`r fig_num("ww_map", display = "cite", caption = "Map of URI Watershed Watch lake and reservoir sampling sites")`) and to reference that fig, assuming it is an image file inside the ../figures folder would look this way [@bivand2014maptools].
+
+![Figure 1: Map of URI Watershed Watch lake and reservoir sampling sites](media/image1.jpg){width="5.7in" height="7.45in"}
+
+`r fig_num("ww_map", caption = "Map of URI Watershed Watch lake and reservoir sampling sites")`
+
+If you want some inline R code, do this `r nrow(iris)`.
+
+Results
+=======
+
+Results go here and if you want a table caption, do this (`r tab_num("ww_params", display = "cite", caption = "Summary statistics for URI Watershed Watch data from 1993 to 2016.")`). And then this in an example code chunk kicing out a pander table.
+
+```{r ww_params, echo=FALSE, results="asis"}
+pander::pander(head(iris), style = "rmarkdown")
+```
+
+`r tab_num("ww_params")`
+
+Discussion and conclusions
+==========================
+
+Really great conclusions and discussion thereof goes here!
+
+Bibliography
+============
