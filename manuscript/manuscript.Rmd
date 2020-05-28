@@ -42,6 +42,11 @@ Introduction
 
 Intro goes here and citations look like [@vitousek1997human; @finlay2013human; @filippelli2008global].
 
+Excess nitrogen (N) delivery via surface water to coastal estuaries contributes to impaired water quality evidenced by excess algal blooms and hypoxia (citation). Identifying landscape N sinks (areas where dissolved N is transformed to gaseous N and effectively removed from the aquatic system) and their effect on N delivery at the watershed scale is helpful to watershed managers, land use planners and conservation organizations. N-Sink was developed as a web-based tool to visualize and explore landscape N sinks at the HUC-12 scale, and makes extensive use of widely available GIS data. The theoretical underpinnings rely on decades of research and are outlined in [@kellogg2010geospatial]. The landscape N sinks included in this approach include wetlands, streams and ponds, which are all areas were water flow is slowed and N transformations have time to occur.
+
+The nsink R package was written to simplify the acquisition and management of the spatial data necessary to estimate N removal within each identified landscape sink, estimate cumulative N removal along a specified flowpath, and create a set of static watershed maps. These static maps include 1) N Removal Efficiency, a color-coded map of the estimated N removal efficiency of the different landscape sinks; 2) N Transport Index, a heat map with the cumulative N removal along flowpaths originating from a grid of points across a watershed, highlighting “leaky” areas with less downstream N retention vs. those with higher downstream retention; and c) N Delivery Index, combining maps (a) and (b) along with source loading based on NLCD categories and expressed as an N index ranging from 0 to 1, resulting in a map showing potential N delivery from different sources, taking into account the potential N removal as water moves downstream.
+
+
 Methods
 =======
 
@@ -52,6 +57,19 @@ Methods are what belong here and an inline fig citation looks like (`r fig_num("
 
 
 If you want some inline R code, do this `r nrow(iris)`.
+
+
+Starting point - less well-developed NHD during development stage forced less versatile architecture. 
+
+Adaptation - With more advanced NHD data and online SSURGO, along with increased familiarity with R gave us the opportunity to re-write, making use of better data and faster architecture using R.
+
+Changes to underlying methodology:
+
+Streams and Lakes: use NHD Plus V2 to estimate retention/travel time rather doing independent calcs. Making use of USGS expertise.
+Wetlands: we used to focus on riparian wetlands and used hydric soils as sink. With SSURGO we include all hydric soils, regardless of whether they abut surface water. Hydric status is calculated within each soil mapping unit according to the % hydric within each soil mapping unit, taking the average for that 30X30 cell.[JEFF, I need to check exactly what we do here]. Removal is estimated as 80% X %hydric within the mapping unit.
+
+
+
 
 Results
 =======
@@ -71,3 +89,13 @@ Really great conclusions and discussion thereof goes here!
 
 Bibliography
 ============
+@article{kellogg2010geospatial,
+  title={A geospatial approach for assessing denitrification sinks within lower-order catchments},
+  author={Kellogg, DQ and Gold, Arthur J and Cox, Suzanne and Addy, Kelly and August, Peter V},
+  journal={Ecological Engineering},
+  volume={36},
+  number={11},
+  pages={1596--1606},
+  year={2010},
+  publisher={Elsevier}
+}
