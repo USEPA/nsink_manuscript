@@ -1,42 +1,76 @@
 ---
-title: 'Assessing landscape N removal in coastal New England catchments using the N-Sink approach with a new R package, nsink'
-# alternative title in keeping with PeerJ: nsink: an R package for estimating and visualizing N removal from landscape N sinks
+title: Assessing landscape N removal in coastal New England catchments using the N-Sink
+  approach with a new R package, nsink
 author:
-- Hollister. J. W. ^\*^ ^*1*^, Kellogg, D. Q. ^*2*^, Arnold, C.^*3*^, Gold,
-  A.^*2*^, Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Forshay, K.
-  J.^*4*^
-- ^*1*^ US Environmental Protection Agency, Office Of Research and Development,
-  Atlantic Coastal Environmental Sciences Division, Narragansett, RI 02882
-- ^*2*^ University of Rhode Island, Department of Natural Resources Science,
-  Kingston, RI 02881
-- ^*3*^ University of Connecticut, Center for Land Use Education and Research,
-  Haddam, CT 06438
-- ^*4*^ US Environmental Protection Agency, Office Of Research and Development,
-  Groundwater Characterization and Remediation Division, Ada, OK 74820
+- Hollister. J. W. ^\*^ ^*1*^, Kellogg, D. Q. ^*2*^, Arnold, C.^*3*^, Gold, A.^*2*^,
+  Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Forshay, K. J.^*4*^
+- ^*1*^ US Environmental Protection Agency, Office Of Research and Development, Atlantic
+  Coastal Environmental Sciences Division, Narragansett, RI 02882
+- ^*2*^ University of Rhode Island, Department of Natural Resources Science, Kingston,
+  RI 02881
+- ^*3*^ University of Connecticut, Center for Land Use Education and Research, Haddam,
+  CT 06438
+- ^*4*^ US Environmental Protection Agency, Office Of Research and Development, Groundwater
+  Characterization and Remediation Division, Ada, OK 74820
 - '^\*^ \*corresponding author: <qkellogg@uri.edu*>'
 bibliography: manuscript.bib
 output:
+  html_document:
+    df_print: paged
   word_document:
     reference_docx: manuscript_template.docx
 editor_options:
   chunk_output_type: console
 csl: ecology.csl
-abstract: 'Excessive nitrogen (N) loading to coastal ecosystems impairs estuarine water quality. Land management decisions made within estuarine watersheds have a direct impact on downstream N delivery. Natural features within watersheds can act as landscape sinks for N -- wetlands, streams and ponds -- transforming dissolved N into gaseous N, effectively removing it from the aquatic system. Identifying and evaluating these landscape sinks and their spatial relationship to N sources can assist managers to evaluate the effects of their decisions on downstream resources. N-Sink is an approach that uses widely available GIS data to identify landscape sinks within HUC-12 catchments, estimate their N removal potential and map the effect of those sinks on N movement through the catchment. A series of static maps are produced to visualize N removal efficiency, N loading, transport and delivery, the latter three in the form of indices, To facilitate data acquisition, processing and visualization, an R package `nsink` was developed and has been used to produce static maps for all HUC-12 catchments in southern New England. Users can use the R package to investigate a HUC-12 of interest, or can visit the UConn website to explore the already mapped areas. Users can also investigate specific flowpaths interactively by clicking on any location within the catchment. A flowpath is generated, along with a table describing N removal along each segment.'
+abstract: Excessive nitrogen (N) loading to coastal ecosystems impairs estuarine water
+  quality. Land management decisions made within estuarine watersheds have a direct
+  impact on downstream N delivery. Natural features within watersheds can act as landscape
+  sinks for N -- wetlands, streams and ponds -- transforming dissolved N into gaseous
+  N, effectively removing it from the aquatic system. Identifying and evaluating these
+  landscape sinks and their spatial relationship to N sources can assist managers
+  to evaluate the effects of their decisions on downstream resources. N-Sink is an
+  approach that uses widely available GIS data to identify landscape sinks within
+  HUC-12 catchments, estimate their N removal potential and map the effect of those
+  sinks on N movement through the catchment. A series of static maps are produced
+  to visualize N removal efficiency, N loading, transport and delivery, the latter
+  three in the form of indices, To facilitate data acquisition, processing and visualization,
+  an R package `nsink` was developed and has been used to produce static maps for
+  all HUC-12 catchments in southern New England. Users can use the R package to investigate
+  a HUC-12 of interest, or can visit the UConn website to explore the already mapped
+  areas. Users can also investigate specific flowpaths interactively by clicking on
+  any location within the catchment. A flowpath is generated, along with a table describing
+  N removal along each segment.
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   eval = TRUE,
   cache = FALSE,
-  tidy = FALSE
+  tidy = FALSE,
+  message = FALSE
 )
-load(system.file("testdata.rda", package = "nsink"))
+#load(system.file("testdata.rda", package = "nsink"))
 ```
 
-```{r setup, echo=FALSE}
+```{r setup, echo=FALSE, warning = FALSE}
+
 library(nsink)
 ```
 
+```{r get_huc, include = FALSE, eval = TRUE}
+# The Niantic
+niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
+# The Farm
+farm_huc_id <- nsink_get_huc_id("Farm River")$huc_12
+```
+
+```{r get_data_norun, eval = FALSE, include = FALSE}
+# Change eval = TRUE if you want to download the data
+# Get data for selected HUC
+niantic_download <- nsink_get_data(niantic_huc_id, 
+                                   data_dir = "nsink_niantic_data")
+farm_download <- nsink_get_data(farm_huc_id, data_dir = "nsink_farm_data")
+```
 
 
 Introduction
@@ -51,34 +85,32 @@ Methods
 =======
 
 ## Development of the R package `nsink`
-The package `nsink` implements an approach to estimate relative nitrogen (N) removal along a flow path. This approach is detailed in Kellogg et al. [-@kellogg2010geospatial]. The `nsink` package follows from an initial version of N-Sink written in ArcGIS using ModelBuilder. That version required time-consuming data manipulation by hand due to limitations of earlier NHD datasets as well as the limitations of working in a GIS environment requiring a user license. With the increasingly more versatile GIS packages now available in R, the previously time-consuming spatial data acquisition and management of N-Sink could be automated and more easily applied to other HUC-12 catchments, leading to the development of the `nsink` package. Specifically, `nsink` relies on packages `sf` and `raster`.
+The package `nsink` implements the approach detailed in Kellogg et al. [-@kellogg2010geospatial] to estimate relative nitrogen (N) removal along a flowpath. The `nsink` package follows from an initial version of N-Sink written in ArcGIS using ModelBuilder. That version required time-consuming data manipulation by hand due to limitations of earlier NHD datasets as well as the limitations of working in a GIS environment requiring a user license. With the increasingly more versatile GIS packages now available in R, the previously time-consuming spatial data acquisition and management of N-Sink could be automated and more easily applied to other HUC-12 catchments, leading to the development of the `nsink` package. Specifically, `nsink` relies on packages `sf` and `raster`.
 
+Functions|Description
+:--------|:----------
+nsink_get_huc_id|Takes Hydrologic Unit Code (HUC) Name and returns HUC12 IDs
+nsink_get_data|Downloads local copies of datasets for specified HUC
+nsink_prep_data|Standardizes projections, clips all datasets to HUC boundary
+nsink_calc_removal|Calculates percentage of nitrogen (N) removal within the various landscape N sinks
+nsink_generate_flowpath|Generates a flowpath from XY starting point for use in N removal analysis
+nsink_summarize_flowpath|Estimates N removal along flowpath and lists removal by type of N sink encountered
+nsink_generate_static_maps|Generates static maps for a given HUC
+nsink_plot|Creates simple plot with pre-selected palettes from a list of static maps created by nsink_generate_static_maps()
+nsink_build|Wrapper function that runs all required functions to build the full dataset and static maps for a specified HUC12
 
 ## Using the `nsink` package
-The `nsink` package provides several functions to set up and run an N-Sink 
-analysis for a specified 12-digit HUC code.  All required data are downloaded, 
-prepared for the analysis, HUC-wide nitrogen removal calculated, and flow paths 
-summarized.  Additionally, a convenience function that will run all of the 
-required functions for a specified HUC is included. 
+The `nsink` package provides several functions to set up and run an N-Sink analysis for a specified 12-digit HUC. All required data are downloaded, prepared for the analysis, HUC-wide nitrogen removal calculated, and flowpaths summarized.  Additionally, a convenience function that will run all of the required functions for a specified HUC is included. 
 
 The workflow follows a simple series of steps to create a set of static maps: N Removal Efficiency, N Transport Efficiency, and N Delivery Index.
 
 ## Download the data
-`nsink_get_huc_id()` - search all 12-digit HUC names using a known location name.
+`nsink_get_huc_id()` - search 12-digit HUC IDs using a known location name.
 
-`nsink_get_data()` - download and save in a data folder hydrography, soils, and land cover for the specified 12-digit HUC. 
-These data will cover the HUC, but will not yet be reduced to those data exclusive to the specified HUC.
-The `nsink` package utilizes openly available data from several U.S. Federal 
-Government sources. All data are from publicly available sources and
-as of `r lubridate::today()` no authentication is required to access these 
-sources.  The HUC ID is required and users may specify a path for storing the 
-data as well as indicate whether or not to download the data again if they 
-already exist in the data directory.
+`nsink_get_data()` - download and save in a data folder hydrography, soils, and land cover for the specified 12-digit HUC. These data cover the HUC, but have not been pared down to those data exclusive to the specified HUC. The `nsink` package utilizes openly available data from several U.S. Federal Government sources and as of `r lubridate::today()` no authentication is required to access these sources.  The HUC ID is required and users may specify a path for storing the data as well as indicate whether or not to download the data again if they already exist in the data directory.
 
 ## Prepare the data
-Once the data are downloaded there are several additional data processing steps 
-that are required to subset the data to the HUC and set all data to a 
-common coordinate reference system (CRS).  
+Once the data are downloaded there are several additional data processing steps that are required to subset the data to the HUC and set all data to a common coordinate reference system (CRS).  
 
 These include:
 
@@ -89,168 +121,82 @@ These include:
 - harmonize raster extents
 - set all data to common CRS
 
-The `nsink_prep_data()` function will complete all of these processing steps.  
-It requires a HUC ID, a specified CRS, and a path to a data directory.  It 
-returns a "list" (a specific data format in R) with all required data for subsequent N-Sink analyses.
-NOTE: Not sure where we are at with the CRS. Check for latest.
-A quick note on the CRS.  In the near future, the preferred way to specify the CRS values will either 
-be with Well-Known Text (WKT) or [EPSG Codes](http://spatialreference.org/ref/epsg/). 
-Proj.4 strings will eventually be deprecated. Currently the packages that `nsink` relies on are a
-t different stages in implementing the changes to PROJ. Currently Proj.4 strings are preferred, 
-but that will change soon.
+The `nsink_prep_data()` function will complete all of these processing steps. It requires a HUC ID, a specified CRS, and a path to a data directory. It returns a "list" (a specific data format in R) with all required data for subsequent N-Sink analyses.
+
+```{r prep_data, eval = TRUE, include = FALSE}
+# EPSG for CONUS Albers Equal Area
+aea <- 5072
+
+# Prep data for selected HUC
+niantic_data <- nsink_prep_data(niantic_huc_id, projection = aea, data_dir = "nsink_niantic_data")
+farm_data <- nsink_prep_data(farm_huc_id, projection = aea,
+                             data_dir = "nsink_farm_data")
+```
 
 ## Calculate N removal
-The next step in the N-Sink process is to calculate relative nitrogen removal.  
-Details on how the nitrogen removal estimates are calculated are available in 
-Kellogg et al. [-@kellogg2010geospatial]. Since the publication of that article,
-changes have been implemented to make better use of the most recently available 
-geospatial data; data that were not available at the time of publication. Those 
-changes are described in Section XX. The `nsink_calc_removal()` function 
-takes the prepared data as an input and returns a "list" with three items:
+The next step in the N-Sink workflow is to calculate potential nitrogen removal within each landscape sink, expressed as percent of incoming N. Details on how the nitrogen removal estimates are calculated are available in Kellogg et al. [-@kellogg2010geospatial], and make use peer-reviewed literature. Since the publication of that article, changes have been implemented to make better use of the most recently available geospatial data. Those changes are described below. The `nsink_calc_removal()` function takes the prepared data as an input and returns a "list" with three items:
 
-- raster_method: This item contains a raster based approach to calculating 
-removal.  Used for the static maps of removal.
-- land_removal: This represents land based nitrogen removal which is hydric 
-soils with areas of impervious surface removed.
-- network_removal: This contains removal along the NHD Plus flow network.  
-Removal is calculated separately for streams and waterbodies (i.e., lakes and 
-reservoirs).
+- raster_method: Contains a raster-based approach to calculating removal.  Used for the static maps showing potential N removal within landscape sinks.
+- land_removal: Represents land-based nitrogen removal within vegetated hydric soils (with impervious surface, i.e., developed areas, removed).
+- network_removal: Contains removal along the NHD Plus flow network. Removal is calculated separately for streams and waterbodies (i.e., lakes and reservoirs).
+
+```{r calc_removal, eval = TRUE, include = FALSE}
+# Calculate removal from prepped data
+niantic_removal <- nsink_calc_removal(niantic_data)
+```
 
 ## Generate and summarize flowpaths
-A useful part of the N-Sink approach is not just the calculation of relative 
-removal for individual components of the landscape, it is the ability to 
-summarize that removal along the legnth of a specified flowpath.  The `nsink` 
-package provides two functions that facilitate this process. The 
-`nsink_generate_flowpath()` function takes a point location as an `sf` object 
-and the prepped data (generated by `nsink_prep_data()`) as input and returns an 
-`sf` LINESTRING of the flowpath starting from the input point location and 
-terminating at the furthest downstream location in the input NHD Plus.  The 
-flowpath on land is generated from a flow direction grid.  Once that flowpath 
-intersects the surface water network, flow is determined by flow along the NHD Plus 
-stream network.  First, create the `sf` POINT object.         
+A useful part of the N-Sink approach is not just the calculation of potential N removal for individual components of the landscape, it is the ability to summarize cumulative removal along the length of a specified flowpath. Starting from any specified location the flowpath on land is generated from a flow direction grid.  Once that flowpath intersects the surface water network, flow is determined by flow along the NHD Plus surface water network. With a flowpath generated the cumulative N removal along that flowpath can be calculated with the `nsink_summarize_flowpath()` function. It takes the flowpath and removal as input. A data frame is returned with each segment identified by type, the percent removal associated with that segment, and cumulative removal.  Total cumulative removal is 100 - minimum of the `n_out` column. That is, `n_out` keeps track of the percent of N leaving each subsequent downstream segment (Table 2).
 
-```{r flowpath_start}
-# Load up the sf package
+```{r summarize_it, message = FALSE, include = FALSE}
 library(sf)
+## Linking to GEOS 3.8.1, GDAL 3.1.4, PROJ 6.3.1
 # Starting point
 pt <- c(1948121, 2295822)
 start_loc <- st_sf(st_sfc(st_point(c(pt)), crs = aea))
-```
-
-You may also determine your point location interactively by plotting your data 
-and using the `locator()` function .  First create a simple plot.
-
-```{r flowpath_plot, eval=FALSE}
-# Create a simple plot
-plot(st_geometry(niantic_data$huc))
-plot(st_geometry(niantic_data$lakes), add = T, col = "darkblue")
-plot(st_geometry(niantic_data$streams), add = T, col = "blue")
-```
-
-With the map made, you can use that to interactively select a location and use 
-the x and y to create the `sf` POINT object.
-
-```{r interactive_loc, eval=FALSE}
-# Select location on map for starting point
-pt <- unlist(locator(n = 1))
-# convert to sf POINT
-start_loc_inter <- st_sf(st_sfc(st_point(pt), crs = aea))
-```
-
-With a point identified, we can use that as the starting location for our 
-flowpath.
-
-```{r generate_flowpath, eval=FALSE}
 niantic_fp <- nsink_generate_flowpath(start_loc, niantic_data)
-```
-
-The reutrned value has both the `flowpath_ends`, the portion of the flowpath on
-the land which is created using the flow direction grid, and the 
-`flowpath_network` which is the portion of the flowpath from the NHD Plus 
-network that occur after the upstream `flowpath_ends` intersect the surface water network.
-
-```{r thefp}
-niantic_fp
-```
-
-With a flowpath generated we can summarize the relative nitrogen removal along 
-that flowpath with the `nsink_summarize_flowpath()` function. It takes the 
-flowpath and removal as input.  A data frame is returned with each segment 
-identified by type, the percent removal associated with that segment, and 
-relative removal.  Total relative removal is 100 - minimum of the `n_out` 
-column. That is, `n_out` keeps track of the proportion of N leaving each 
-subsequent downstream segment.
-
-```{r summarize_it}
 niantic_fp_removal <- nsink_summarize_flowpath(niantic_fp, niantic_removal)
 niantic_fp_removal
 100-min(niantic_fp_removal$n_out)
 ```
-
+```{r show_summary, include = TRUE}
+kable(niantic_fp_removal, caption = "Summary table of N removal along specified flowpath")
+```
 ## Static maps
 
-Individual flow paths are useful for specific areas of interest, but it is also
-useful to look at removal patterns across the landscape.  The 
-`nsink_generate_static_maps()` function provides these HUC-wide rasters. Required inputs are the prepped data, removal raster, and sampling density, for which a default is provided.   
-The function returns four separate rasters.
+Individual flowpaths are useful for specific areas of interest, but it is also useful to look at removal patterns across the landscape. The `nsink_generate_static_maps()` function produces a set of HUC-wide raster maps. Required inputs are the prepped data, removal raster, and sampling density, for which a default is provided. The function returns four separate rasters.
 
-- `removal_effic`: Landscape wide estimate of relative nitrogen removal as a
-percentage.
-- `loading_idx`: An index of relative nitrogen loads by land cover class derived 
-from published sources.
-- `transport_idx`: This is relative nitrogen transport for a sample of all 
-possible flowpaths in a given HUC.  This is an expensive computational task, so 
-`nsink` generates a removal hotspot map based on a sample of flowpaths and the 
-final hotspot map is interpolated from these samples and referred to as the 
-nitrogen transport index.  The `samp_density` argument controls the number of 
-sample flowpaths generated.  
-- `delivery_idx`: The delivery index is the combination of the loading index and 
-the transport index  It represents which areas of the landscape are 
-delivering the most nitrogen to the outflow of the watershed.
+- `removal_effic`: HUC-wide estimate of potential nitrogen removal from different landscape sinks as a percentage.
+- `loading_idx`: An normalized index of nitrogen loads by land cover class derived from published sources, ranging from 0 to 1.
+- `transport_idx`: N transport for a sample of all possible flowpaths in a given HUC. This is an expensive computational task, so `nsink` generates a removal hotspot map based on a sample of flowpaths and the final hotspot map is interpolated from these samples and referred to as the nitrogen transport index.  The `samp_density` argument controls the number of sample flowpaths generated. Each starting point is assigned the value of N delivery (%) based on cumulative N removal along the flowpath from that starting point.
+- `delivery_idx`: The delivery index is the combination of the loading index and the transport index  It highlights areas of the landscape that are delivering the most nitrogen to the outflow of the watershed based on NLCD land cover data.
 
-```{r static_maps, eval=FALSE}
-niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 
-                                                  900)
+```{r static_maps, eval=TRUE, include = FALSE}
+niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 900)
 ```
 
-And with these static maps generated, you can plot them quickly with 
-`nsink_plot_removal()`, `nsink_plot_delivery()`, or `nsink_plot_transport()`.  
-An example of `nsink_plot_transport()` is below.
+These static maps can be quickly plotted with `nsink_plot()` using the `map` argument to identify map type.
 
-```{r plots}
-nsink_plot_transport(niantic_static_maps$transport_idx)
+```{r plots, fig.cap = "Nitrogen Removal Efficiency (NRE, range 0 to 100%) is the estimeated percentage of N removed within three types of landscape N sinks - wetlands, streams, ponds."}
+
+nsink_plot(niantic_static_maps, map = "removal")
+#nsink_plot(niantic_static_maps, map = "transport")
+#nsink_plot(niantic_static_maps, map = "delivery")
+
 ```
 
 ## Convenience function: Build it all!
 
-The workflow described above includes all the basic functionality.  Some users 
-may wish to use `nsink` to calculate the base layers for an N-Sink analysis and 
-then build an application outside of R.  A convenience function that downloads 
-all data, prepares, calculates removal, and generates static maps has been 
-included to facilitate this type of analysis.  The `nsink_build()` function 
-requires a HUC ID, coordinate reference system, and sampling density.  An output
-folder is also needed but has a default location.  There are ptional arguments for 
-forcing a new download and playing a sound to signal when the build has 
-finished. All prepped data files and `.tif` files are 
-written to the output folder for use in other applications.
+The workflow described above includes all the basic functionality. Some users may wish to use `nsink` to calculate the base layers for an N-Sink analysis and then build an application outside of R. A convenience function that downloads all data, prepares, calculates removal, and generates static maps has been included to facilitate this type of analysis.  The `nsink_build()` function requires a HUC ID, coordinate reference system, and sampling density. An output folder is also needed but has a default location. There are optional arguments for forcing a new download and playing a sound to signal when the build has finished. All prepped data files and `.tif` files are written to the output folder for use in other applications.
 
-```{r build, eval=FALSE}
-niantic_huc <- nsink_get_huc_id("Niantic River")$huc_12
-aea <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 
-+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-nsink_build(niantic_huc, aea, samp_dens = 900)
-```
-
-Currently we have created the static maps for all HUC-12s in coastal southern New England (map). These may be viewed and explored interactively at https://clear.uconn.edu/projects/nsink/.
-
-## Changes to underlying methodology:
+## Changes to underlying methodology
 
 Several improvements have been made to the underlying methodology that have allowed `nsink` to make use of more recently available spatial data that had to be estimated in the original version. In estimating N removal in streams, we originally had to estimated stream depth and velocity based on other available geospatial data to arrive at a travel time along a given stream reach. With the updated and expanded NHD Plus V2 we can use the estimates provided in that dataset, making use of USGS expertise that went into these estimates. 
 
 In estimating N removal occurring in the terrestrial portion of the flowpath, we originally focused on riparian wetlands, using SSURGO mapped hydric soils to identify this landscape sink. With the latest version of SSURGO we include all hydric soils in the catchment, except those identified as "subaqueous". Each soil mapping unit (SMU) that has a positive hydric status also has an estimate of %hydric for that SMU. We then estimate N removal within that SMU as 80% of of the %hydric. Each raster has one SMU identified with it and raster cell size is 30m X 30m, which is the maximum wetland width originally estimated as having 80% N removal. In the current version N removal is cumulative as a flowpath intercepts hydric soils in any cell before encountering surface water. 
 
 ## Off-network hydrology
-In the NHD Plus dataset there are situations where a water body or stream segment is "off-network", i.e., it is not linked to the larger surface flow network. These may be features such as groundwater fed kettle ponds, or canals or ditches where connecting hydrology may not be captured in the NHD Plus dataset. These off-network features tend to have less NHD spatial data associated with them, making direct N removal estimates impossible. In these cases, we must estimate removal based on other in-network surface water features. While off-network features are rare and spatially small compared to the overall system, they do occur in some catchments. We estimated removal from off-network stream segments as the median removal of all first order streams in the same catchment. In this case we are assuming these first order segments behave similarly to other first order stream reaches. Off-network ditches and canals, identified as such in the NHD dataset, are expected to provide little N removal due to their designed intent to move water efficiently, reducing residence time [@buchanan2013hydrological], and therefore assign removal as the lower quartile of removal from the highest order streams in the same catchment. Finally, off-network lakes and ponds are assigned N removal at the 3rd quartile of removal from all lakes and ponds in the same catchment [@hampton2019residence; ].
+In the NHD Plus dataset there are situations where a water body or stream segment is "off-network", i.e., it is not linked to the larger surface flow network. These may be features such as groundwater fed kettle ponds, or canals or ditches where connecting hydrology may not be captured in the NHD Plus dataset. These off-network features tend to have less NHD spatial data associated with them, making direct N removal estimates impossible. In these cases, we must estimate removal based on other in-network surface water features. While off-network features are rare and spatially small compared to the overall system, they do occur in some catchments. We estimated removal from off-network stream segments to be equal to the median removal of all first order streams in the same catchment. In this case we are assuming these first order segments behave similarly to other first order stream reaches. Off-network ditches and canals, identified as such in the NHD dataset, are expected to provide little N removal due to their designed intent to move water efficiently, reducing residence time [@buchanan2013hydrological], and therefore assign removal as the lower quartile of removal from the highest order streams in the same catchment. Finally, off-network lakes and ponds are assigned N removal at the 3rd quartile of removal from all lakes and ponds in the same catchment [@hampton2019residence; ].
 
 
 ## Caveats
