@@ -152,15 +152,15 @@ A useful part of the N-Sink approach is not just the calculation of potential N 
 library(sf)
 ## Linking to GEOS 3.8.1, GDAL 3.1.4, PROJ 6.3.1
 # Starting point
-pt <- c(1948121, 2295822)
-start_loc <- st_sf(st_sfc(st_point(c(pt)), crs = aea))
-niantic_fp <- nsink_generate_flowpath(start_loc, niantic_data)
-niantic_fp_removal <- nsink_summarize_flowpath(niantic_fp, niantic_removal)
-niantic_fp_removal
-100-min(niantic_fp_removal$n_out)
+
+pta <- c(1953529, 2290811)
+start_loc_inter_a <- st_sf(st_sfc(st_point(pta), crs = aea))
+niantic_fp_a <- nsink_generate_flowpath(start_loc_inter_a, niantic_data)
+niantic_fp_removal_a <- nsink_summarize_flowpath(niantic_fp_a, niantic_removal)
+
 ```
-```{r show_summary, include = TRUE}
-kable(niantic_fp_removal, caption = "Summary table of N removal along specified flowpath")
+```{r show_summary, include = TRUE, echo = FALSE}
+knitr::kable(niantic_fp_removal_a, caption = "Table 1: Summary of N removal along specified flowpath A")
 ```
 ## Static maps
 
@@ -177,41 +177,80 @@ niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal,
 
 These static maps can be quickly plotted with `nsink_plot()` using the `map` argument to identify map type.
 
-```{r plots, fig.cap = "Nitrogen Removal Efficiency (NRE, range 0 to 100%) is the estimeated percentage of N removed within three types of landscape N sinks - wetlands, streams, ponds."}
+```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (NRE, range 0 to 100%) is the estimeated percentage of N removed within three types of landscape N sinks - wetlands, streams, ponds."}
 
 nsink_plot(niantic_static_maps, map = "removal")
-#nsink_plot(niantic_static_maps, map = "transport")
-#nsink_plot(niantic_static_maps, map = "delivery")
-
 ```
+```{r plot2, fig.cap = "Figure 2: Nitrogen Transport Index (NTI, range 0 to 100%) is the estimated percentage of N originating at a given location within a watershed that is expected to reach downstream receiving waters, such as a coastal embayment."}
 
-## Convenience function: Build it all!
+nsink_plot(niantic_static_maps, map = "transport")
+```
+```{r plots3, fig.cap = "Figure 3: Nitrogen Delivery Index (NDI, range 0 to 100%)  is a relative measure of the estimated N being transported from a location within a mapped watershed to receiving waters. N loading estimates are based on land cover classes, making use of peer-reviewed published data, and normalized, with a range of 0 to 1. These N loading factors are then multiplied by the N Transport Efficiency (range 0 to 100) from a given location within a watershed, to arrive at the NDI."}
+
+nsink_plot(niantic_static_maps, map = "delivery")
+```
+## Convenience function to build it all
 
 The workflow described above includes all the basic functionality. Some users may wish to use `nsink` to calculate the base layers for an N-Sink analysis and then build an application outside of R. A convenience function that downloads all data, prepares, calculates removal, and generates static maps has been included to facilitate this type of analysis.  The `nsink_build()` function requires a HUC ID, coordinate reference system, and sampling density. An output folder is also needed but has a default location. There are optional arguments for forcing a new download and playing a sound to signal when the build has finished. All prepped data files and `.tif` files are written to the output folder for use in other applications.
+
+N-Sink maps are now available for HUC-12 catchments in coastal CT, RI and southern MA as a web application [interactive tool](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31). This app can be used to examine and better understand N movement through these HUC-12 catchments. 
 
 ## Changes to underlying methodology
 
 Several improvements have been made to the underlying methodology that have allowed `nsink` to make use of more recently available spatial data that had to be estimated in the original version. In estimating N removal in streams, we originally had to estimated stream depth and velocity based on other available geospatial data to arrive at a travel time along a given stream reach. With the updated and expanded NHD Plus V2 we can use the estimates provided in that dataset, making use of USGS expertise that went into these estimates. 
 
-In estimating N removal occurring in the terrestrial portion of the flowpath, we originally focused on riparian wetlands, using SSURGO mapped hydric soils to identify this landscape sink. With the latest version of SSURGO we include all hydric soils in the catchment, except those identified as "subaqueous". Each soil mapping unit (SMU) that has a positive hydric status also has an estimate of %hydric for that SMU. We then estimate N removal within that SMU as 80% of of the %hydric. Each raster has one SMU identified with it and raster cell size is 30m X 30m, which is the maximum wetland width originally estimated as having 80% N removal. In the current version N removal is cumulative as a flowpath intercepts hydric soils in any cell before encountering surface water. 
+In estimating N removal occurring in the terrestrial portion of the flowpath, we originally focused on riparian wetlands, using SSURGO mapped hydric soils to identify this landscape sink. With the latest version of SSURGO we include all hydric soils in the catchment, except those identified as "subaqueous". Each soil mapping unit (SMU) that has a positive hydric status also has an estimate of %hydric for that SMU. We then estimate N removal within that SMU as 80% of the %hydric. Each raster has one SMU identified with it and raster cell size is 30m X 30m, which is the maximum wetland width originally estimated as having 80% N removal. In the current version N removal is cumulative as a flowpath intercepts hydric soils in any cell before encountering surface water. 
 
 ## Off-network hydrology
-In the NHD Plus dataset there are situations where a water body or stream segment is "off-network", i.e., it is not linked to the larger surface flow network. These may be features such as groundwater fed kettle ponds, or canals or ditches where connecting hydrology may not be captured in the NHD Plus dataset. These off-network features tend to have less NHD spatial data associated with them, making direct N removal estimates impossible. In these cases, we must estimate removal based on other in-network surface water features. While off-network features are rare and spatially small compared to the overall system, they do occur in some catchments. We estimated removal from off-network stream segments to be equal to the median removal of all first order streams in the same catchment. In this case we are assuming these first order segments behave similarly to other first order stream reaches. Off-network ditches and canals, identified as such in the NHD dataset, are expected to provide little N removal due to their designed intent to move water efficiently, reducing residence time [@buchanan2013hydrological], and therefore assign removal as the lower quartile of removal from the highest order streams in the same catchment. Finally, off-network lakes and ponds are assigned N removal at the 3rd quartile of removal from all lakes and ponds in the same catchment [@hampton2019residence; ].
+In the NHD Plus dataset there are situations where a water body or stream segment is "off-network", i.e., it is not linked to the larger surface flow network. These may be features such as groundwater fed kettle ponds, or canals or ditches where connecting hydrology may not be captured in the NHD Plus dataset. These off-network features tend to have less NHD spatial data associated with them, making direct N removal estimates impossible. In these cases, we must estimate removal based on other in-network surface water features. While off-network features are rare and spatially small compared to the overall system, they do occur in some catchments. We estimated removal from off-network stream segments to be equal to the median removal of all first order streams in the same catchment. In this case we are assuming these first order segments behave similarly to other first order stream reaches. Off-network ditches and canals, identified as such in the NHD dataset, are expected to provide little N removal due to their designed intent to move water efficiently, reducing residence time [@buchanan2013hydrological], and therefore assign removal as the lower quartile of removal from the highest order streams in the same catchment. Finally, off-network lakes and ponds are assigned N removal at the 3rd quartile of removal from all lakes and ponds in the same catchment [@hampton2019residence].
 
 
 ## Caveats
-N-Sink was designed for catchments with a surface water network. It is not intended in arid areas or where surface water flow is highly manipulated, such as in urbanized or tile-drained agricultural areas. In these situations surface water flow is highly variable and often difficult to estimate or predict. 
+N-Sink was designed for catchments where surface and groundwater flow paths are not highly manipulated. In settings with substantial storm water conveyance networks or with extensive subsurface agricultural drainage, the removal of N in riparian zones is likely to be overstated by the model. The numeric outputs of the tool focus on metrics suitable for planning purposes, such as percent removal of N from source to receiving water and relative intensity of loading from different locations. N-Sink is a decision support tool and was created to be a useful, easy way for local land use managers to explore the relationship between land use and nitrogen pollution in their waters. N-Sink uses the best available science on land use/nitrogen interactions, plus widely available datasets for waterway networks, soils and land use, to highlight major sources and sinks of nitrogen within a watershed context. 
 
-Here we present two examples using the static maps generated by the `nsink` package to illustrate how we envision this tool being useful in decision-making at the local level.
 
 Use Examples
 ============
-N-Sink is now available for HUC-12 catchments in coastal CT, RI and southern MA and decision-makers are beginning to make use of maps and data available as an [interactive tool](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31).
-However, we are aware of various ways this tool is starting to be integrated into risk analyses. Here we demonstrate two examples using the Niantic River (CT) the Farm River (CT) HUCs. 
+### Example 1: Comparison of N delivery from two adjacent locations
+Comparing the N delivery from two locations that are separated by approximately 900 meters illustrates the importance of location with respect to landscape N sinks. Approximately 56% of the N that originates at point A is transported to the estuary vs. approximately 25% of the N that originates at point B (Fig 4). The difference is due to the different N sinks encountered along the way to the outlet or estuary. Most of the removal that occurs along flowpath A is due to flow through hydric (wetland) soils, with little removal occurring during flow along the downgradient stream network (Table 2). Flowpath B encounters two ponds along the way, significantly increasing residence time and N transformation (Table 3).
 
-Results
-=======
+```{r plots4, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Figure 4: Flowpaths originating from two nearby locations with differing N removal estimates. Hydrofeatures are pictured on the NTI (Nitrongen Transport Index) map."}
 
+ptb <- c(1954039, 2291592)
+start_loc_inter_b <- st_sf(st_sfc(st_point(ptb), crs = aea))
+
+niantic_fp_b <- nsink_generate_flowpath(start_loc_inter_b, niantic_data)
+niantic_fp_removal_b <- nsink_summarize_flowpath(niantic_fp_b, niantic_removal)
+raster::plot(niantic_static_maps$transport_idx, breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100), 
+             col = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", "#E2F088", "#F5E871",
+                     "#F9C159", "#F99844", "#F56A2E","#EF2820"),
+                 main = "Flowpaths originating at points A and B, separated by ~ 900 m")
+plot(niantic_data$streams, add = TRUE, col = "dodgerblue")
+plot(niantic_data$lakes, add = TRUE, col = "dodgerblue", border = "dodgerblue")
+plot(st_geometry(niantic_fp_a$flowpath_network), add = TRUE, col = "gray50", lwd = 3.0)
+plot(st_geometry(niantic_fp_a$flowpath_ends), add = TRUE, col = "gray50", lwd = 3.0)
+plot(st_geometry(niantic_fp_b$flowpath_network), add = TRUE, col = "gray0", lwd = 2.0, lty = 2)
+plot(st_geometry(niantic_fp_b$flowpath_ends), add = TRUE, col = "gray0", lwd = 2.0, lty = 2)
+x <- c(pta[1], ptb[1])
+y <- c(pta[2], ptb[2])
+ab <- st_multipoint(matrix(c(x,y), nrow = 2, ncol = 2))
+ab_plot <- st_sf(st_sfc(ab), crs = aea)
+plot(ab_plot, add = TRUE, pch = 16)
+text(ab, labels = c("A", "B"), pos = 1, offset = 0.4)
+
+```
+```{r compare_flowpaths, include = TRUE, echo = FALSE}
+knitr::kable(niantic_fp_removal_b, caption = "Table 3: Summary of N removal along specified flowpath B")
+```
+
+
+### Example 2: Source controls and sink protection or restoration
+The maps produced by nsink can be helpful in prioritizing source controls, sink protection and/or restoration. While wetlands are considered "protected" by law they are frequently altered through variances granted by local commissions or committees charged with zoning decisions. By better understanding the role sinks play in the protection of estuaries, local agencies have a better chance of achieving protection of downstream receiving water. Variances granted on a case=by-case basis can, however unintentionally, quickly undermine local water quality goals. 
+
+Similarly, sources of N can be highlighted using the nsink static maps [Fig XX]. The N Delivery Index map combines N sources with N transport to highlight 
+
+
+Potential ways to use N-Sink are also available as [bonus maps](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31) on the N-Sink website.
 
 
 Discussion and conclusions
