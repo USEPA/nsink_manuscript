@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
   message = FALSE
 )
 #load(system.file("testdata.rda", package = "nsink"))
-#load("testdata.rda")
+load("testdata.rda")
 ```
 
 ```{r setup, echo=FALSE, warning = FALSE}
@@ -47,7 +47,7 @@ library(raster)
 niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```
 
-```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
+```{r get-data, eval=FALSE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
 niantic_download <- nsink_get_data(niantic_huc_id, 
@@ -114,7 +114,7 @@ These include:
 
 The `nsink_prep_data()` function will complete all of these processing steps. It requires a HUC ID, a specified CRS, and a path to a data directory. It returns a "list" (a specific data format in R) with all required data for subsequent N-Sink analyses.
 
-```{r prep-data, eval = TRUE, include = FALSE}
+```{r prep-data, eval = FALSE, include = FALSE}
 # EPSG for CONUS Albers Equal Area
 aea <- 5072
 
@@ -140,6 +140,9 @@ A useful part of the N-Sink approach is not just the calculation of potential N 
 
 ```{r summarize-it, message = FALSE, include = FALSE}
 library(sf)
+# EPSG for CONUS Albers Equal Area
+aea <- 5072
+
 ## Linking to GEOS 3.8.1, GDAL 3.1.4, PROJ 6.3.1
 # Starting point
 
