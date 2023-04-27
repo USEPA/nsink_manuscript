@@ -49,7 +49,7 @@ niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
 niantic_download <- nsink_get_data(niantic_huc_id, 
-                                  data_dir = "nsink_niantic_data")
+                                  data_dir = "nsink_niantic_data/")
 ```
 
 
