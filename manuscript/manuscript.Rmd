@@ -45,7 +45,7 @@ library(raster)
 niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```
 
-```{r get-data, eval=FALSE, cache=FALSE, include=FALSE}
+```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
 niantic_download <- nsink_get_data(niantic_huc_id, 
