@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
   message = FALSE
 )
 #load(system.file("testdata.rda", package = "nsink"))
-load("testdata.rda")
+#load("testdata.rda")
 ```
 
 ```{r setup, echo=FALSE, warning = FALSE}
