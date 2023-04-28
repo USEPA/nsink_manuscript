@@ -168,7 +168,7 @@ Individual flowpaths are useful for specific areas of interest, but it is also u
 niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 450)
 ```
 
-These static maps can be quickly plotted with `nsink_plot()` using the `map` argument to identify map type.
+These static maps can be quickly plotted with `nsink_plot()` using the `map` argument to identify map type.  These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
 
 ```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs."}
 
