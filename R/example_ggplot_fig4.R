@@ -4,19 +4,19 @@ library(terra)
 library(tidyterra)
 library(nsink)
 library(dplyr)
-
-
 aea <- 5072
+niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
+niantic_data <- nsink_prep_data(niantic_huc_id, projection = aea,
+                                data_dir = "nsink_niantic_data")
+niantic_removal <- nsink_calc_removal(niantic_data)
+
 # Select location on map for starting point using cursor and click
 pta <- c(1954039, 2291592)
 start_loc_inter_a <- st_sf(st_sfc(st_point(pta), crs = aea))
 niantic_fp_a <- nsink_generate_flowpath(start_loc_inter_a, niantic_data)
 niantic_fp_removal_a <- nsink_summarize_flowpath(niantic_fp_a, niantic_removal)
+
 ptb <- c(1953529, 2290811)
-niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
-niantic_data <- nsink_prep_data(niantic_huc_id, projection = aea,
-                                data_dir = "nsink_niantic_data")
-niantic_removal <- nsink_calc_removal(niantic_data)
 start_loc_inter_b <- st_sf(st_sfc(st_point(ptb), crs = aea))
 niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 450)
 
@@ -51,4 +51,18 @@ ggplot() +
   geom_sf(data = niantic_fp_b$flowpath_ends, color = "grey0", linewidth = 0.9) +
   geom_sf(data = ab_plot, pch = 16, size = 2) + 
   geom_sf_label(data = ab_plot, aes(label = labels))
+
+from <- c(seq(0,90,10), NA)
+to <- c(seq(10,100,10), NA)
+matrix(c(from,to,to),ncol = 3)
+tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
+values(tnsport_idx) <- factor(values(tnsport_idx))
+re <- rast(niantic_static_maps$removal_effic)
+values(re)[values(re)==0] <- NA  
+ggplot() +
+  geom_spatraster(data = tnsport_idx) +
+  scale_fill_viridis_d(na.value = NA) +
+  new_scale_fill() +
+  geom_spatraster(data = re, alpha = 0.2) +
+  scale_fill_continuous(na.value = NA)
 
