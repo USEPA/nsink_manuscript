@@ -241,18 +241,31 @@ raster::plot(niantic_static_maps$transport_idx, breaks = c(0, 10, 20, 30, 40, 50
                      "#F9C159", "#F99844", "#F56A2E","#EF2820"))
 huc <- niantic_data$huc
 streams <- st_intersection(huc, niantic_data$streams)
-plot(streams, add = TRUE, col = "dodgerblue")
-plot(niantic_data$lakes, add = TRUE, col = "dodgerblue", border = "dodgerblue")
-plot(st_geometry(niantic_fp_a$flowpath_network), add = TRUE, col = "gray40", lwd = 3.0)
-plot(st_geometry(niantic_fp_a$flowpath_ends), add = TRUE, col = "gray40", lwd = 3.0)
-plot(st_geometry(niantic_fp_b$flowpath_network), add = TRUE, col = "gray0", lwd = 2.0, lty = 2)
-plot(st_geometry(niantic_fp_b$flowpath_ends), add = TRUE, col = "gray0", lwd = 2.0, lty = 2)
 x <- c(pta[1], ptb[1])
 y <- c(pta[2], ptb[2])
 ab <- st_multipoint(matrix(c(x,y), nrow = 2, ncol = 2))
 ab_plot <- st_sf(st_sfc(ab), crs = aea)
 plot(ab_plot, add = TRUE, pch = 16)
 text(ab, labels = c("A", "B"), pos = 1, offset = 0.4)
+from <- c(seq(0,90,10), NA)
+to <- c(seq(10,100,10), NA)
+#matrix(c(from,to,to),ncol = 3)
+tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
+values(tnsport_idx) <- factor(values(tnsport_idx))
+ggplot() +
+  geom_spatraster(data = tnsport_idx) +
+  scale_fill_manual(values = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", 
+                                        "#E2F088", "#F5E871", "#F9C159", 
+                                        "#F99844", "#F56A2E","#EF2820"), 
+                                        na.value = NA, na.translate = FALSE) +
+  geom_sf(data = streams, color = "dodgerblue", linewidth = 0.7) +
+  geom_sf(data = niantic_data$lakes, fill = "dodgerblue", color = "dodgerblue") +
+  geom_sf(data = niantic_fp_a$flowpath_network, color = "grey40", linewidth = 2.5) +
+  geom_sf(data = niantic_fp_a$flowpath_ends, color = "grey40", linewidth = 2.5) +
+  geom_sf(data = niantic_fp_b$flowpath_network, color = "grey0", linewidth = 0.9) +
+  geom_sf(data = niantic_fp_b$flowpath_ends, color = "grey0", linewidth = 0.9) +
+  geom_sf(data = ab_plot, pch = 16, size = 2) + 
+  geom_sf_label(data = ab_plot, aes(label = labels))
 ```
 
 
