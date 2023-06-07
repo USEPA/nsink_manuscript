@@ -1,6 +1,6 @@
 ---
-title: Assessing landscape N removal in coastal New England catchments using the N-Sink
-  approach with a new R package, nsink
+title: "Assessing landscape N removal in coastal New England catchments using the
+  N-Sink approach with a new R package, nsink"
 author:
 - Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\*^ ^*2*^, Arnold, C.^*3*^, Gold, A.^*1*^,
   Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Forshay, K. J.^*4*^
@@ -17,10 +17,30 @@ bibliography: manuscript.bib
 output:
   word_document:
     reference_docx: manuscript_template.docx
+  pdf_document: default
+  html_document:
+    df_print: paged
 editor_options:
   chunk_output_type: console
 csl: ecology.csl
-abstract: Excess nitrogen (N) loading to coastal ecosystems impairs estuarine water quality. Land management decisions made within estuarine watersheds have a direct impact on downstream N delivery. Natural features within watersheds can act as landscape sinks for N, such as wetlands, streams and ponds that transform dissolved N into gaseous N, effectively removing it from the aquatic system. Identifying and evaluating these landscape sinks and their spatial relationship to N sources can help managers understand the effects of alternative decisions on downstream resources. N-Sink is an approach that uses widely available GIS data to identify landscape sinks within HUC-12 (or larger) catchments, estimate their N removal potential and map the effect of those sinks on N movement through the catchment. A series of static maps are produced to visualize N removal efficiency, transport and delivery, the latter in the form of an index. To facilitate data acquisition, processing and visualization, an R package `nsink` was developed and applied to produce static maps for all HUC-12 catchments in southern New England. The R package can be used to develop N delivery maps for a specific HUC-12 of interest, or users can visit the University of Connecticut website to explore the already mapped areas. Users can also investigate specific flowpaths interactively by clicking on any location within the catchment. A flowpath is generated, along with a table describing N removal along each segment.
+abstract: "Excess nitrogen (N) loading to coastal ecosystems impairs estuarine water
+  quality. Land management decisions made within estuarine watersheds have a direct
+  impact on downstream N delivery. Natural features within watersheds can act as landscape
+  sinks for N, such as wetlands, streams and ponds that transform dissolved N into
+  gaseous N, effectively removing it from the aquatic system. Identifying and evaluating
+  these landscape sinks and their spatial relationship to N sources can help managers
+  understand the effects of alternative decisions on downstream resources. N-Sink
+  is an approach that uses widely available GIS data to identify landscape sinks within
+  HUC-12 (or larger) catchments, estimate their N removal potential and map the effect
+  of those sinks on N movement through the catchment. A series of static maps are
+  produced to visualize N removal efficiency, transport and delivery, the latter in
+  the form of an index. To facilitate data acquisition, processing and visualization,
+  an R package `nsink` was developed and applied to produce static maps for all HUC-12
+  catchments in southern New England. The R package can be used to develop N delivery
+  maps for a specific HUC-12 of interest, or users can visit the University of Connecticut
+  website to explore the already mapped areas. Users can also investigate specific
+  flowpaths interactively by clicking on any location within the catchment. A flowpath
+  is generated, along with a table describing N removal along each segment."
 ---
 
 ```{r, include = FALSE}
@@ -38,6 +58,9 @@ knitr::opts_chunk$set(
 library(FedData)
 library(nsink)
 library(raster)
+library(ggplot2)
+library(terra)
+library(tidyterra)
 ```
 
 ```{r get-huc, include = FALSE, eval = TRUE}
@@ -114,7 +137,7 @@ These include:
 
 The `nsink_prep_data()` function will complete all of these processing steps. It requires a HUC ID, a specified CRS, and a path to a data directory. It returns a "list" (a specific data format in R) with all required data for subsequent N-Sink analyses.
 
-```{r prep-data, eval = FALSE, include = FALSE}
+```{r prep-data, eval = TRUE, include = FALSE}
 # EPSG for CONUS Albers Equal Area
 aea <- 5072
 
@@ -213,8 +236,7 @@ Use Examples
 
 Users can use the following to interactively identify a starting point for a flowpath of interest. 
 ```{r case1, echo = TRUE, eval = FALSE}
-# EPSG for CONUS Albers Equal Area
-aea <- 5072
+
 # Select location on map for starting point using cursor and click
 pt <- unlist(locator(n = 1))
 # Convert to sf POINT
@@ -231,27 +253,30 @@ Using this approach, we can compare the N delivery from two locations that are s
 
 ```{r plot4, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Figure 4: Flowpaths originating from two nearby locations within the Niantic River HUC-12 with differing N removal estimates. Hydrofeatures are pictured on the Nitrogen Transport Index map."}
 
+pta <- c(1954039, 2291592)
+start_loc_inter_a <- st_sf(st_sfc(st_point(pta), crs = aea))
+niantic_fp_a <- nsink_generate_flowpath(start_loc_inter_a, niantic_data)
+niantic_fp_removal_a <- nsink_summarize_flowpath(niantic_fp_a, niantic_removal)
+
 ptb <- c(1953529, 2290811)
 start_loc_inter_b <- st_sf(st_sfc(st_point(ptb), crs = aea))
-
 niantic_fp_b <- nsink_generate_flowpath(start_loc_inter_b, niantic_data)
 niantic_fp_removal_b <- nsink_summarize_flowpath(niantic_fp_b, niantic_removal)
-raster::plot(niantic_static_maps$transport_idx, breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100), 
-             col = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", "#E2F088", "#F5E871",
-                     "#F9C159", "#F99844", "#F56A2E","#EF2820"))
+
 huc <- niantic_data$huc
 streams <- st_intersection(huc, niantic_data$streams)
 x <- c(pta[1], ptb[1])
 y <- c(pta[2], ptb[2])
-ab <- st_multipoint(matrix(c(x,y), nrow = 2, ncol = 2))
-ab_plot <- st_sf(st_sfc(ab), crs = aea)
-plot(ab_plot, add = TRUE, pch = 16)
-text(ab, labels = c("A", "B"), pos = 1, offset = 0.4)
+labels <- c("A", "B")
+pts_df <- data.frame(x,y,labels)
+ab_plot <- st_as_sf(pts_df, coords = c("x","y"), crs = aea)
+
 from <- c(seq(0,90,10), NA)
 to <- c(seq(10,100,10), NA)
-#matrix(c(from,to,to),ncol = 3)
+
 tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
 values(tnsport_idx) <- factor(values(tnsport_idx))
+
 ggplot() +
   geom_spatraster(data = tnsport_idx) +
   scale_fill_manual(values = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", 
@@ -278,36 +303,69 @@ knitr::kable(niantic_fp_removal_b, caption = "Table 3: Summary of N removal alon
 
 The maps produced by N-Sink can be helpful in prioritizing source controls, sink protection and/or restoration. For example, many wetlands are considered "protected" by federal, state or local laws and regulations; but as occurs with many types of protected areas [@neal2018coastal] they are frequently altered through variances granted by local commissions or committees charged with zoning decisions. By better understanding the important role that N sinks play in the protection of estuaries, local agencies have a better chance of achieving protection of downstream receiving waters. Variances granted on a case-by-case basis can quickly undermine local water quality goals. Land conservancies and other NGOs interested in identifying parcels of high value for protecting downstream waters from N loading can also use these maps to prioritize land acquisition or wetland restoration projects.
 
-Similarly, sources of N that are contributing relatively more N due to their location within the catchment can be highlighted using the `nsink` static maps. The N Delivery Index map combines N sources with N transport to highlight developed areas that are located on "leakier parts" of a catchment. Figure 5A displays a high resolution image of land cover in the same watershed as Example 1, with two developed areas circled. Figure 5B shows the N Delivery Index from these two developed areas. Note that the northern area is less densely developed than the southern area but the N Delivery Index is higher in the northern area as compared to the southern area, suggesting that N source controls within the northern development might be considered. 
+Similarly, sources of N that are contributing relatively more N due to their location within the catchment can be highlighted using the `nsink` static maps. The N Delivery Index map combines N sources with N transport to highlight developed areas that are located on "leakier parts" of a catchment. Figure 5A displays a high resolution image of land cover in the same watershed as Example 1, with two developed areas circled.
 
-```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two developed areas."}
-box <- c(1949902, 1953930, 2288202, 2292262)
-e <- extent(box)
+```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas (Table 3)."}
+
+box <- c(1950000, 1953800, 2289700, 2293100)
+e <- ext(box)
 legend_nlcd <- pal_nlcd()
-case2 <- crop(niantic_data$nlcd, e)
-vals <- unique(case2@data@values)
-leg <- legend_nlcd[legend_nlcd$ID %in% vals,]
-case2_north <- st_sf(st_sfc(st_point(c(1950846, 2290912)), crs = aea)) 
-case2_south <- st_sf(st_sfc(st_point(c(1952693, 2289249)), crs = aea))
+case2 <- crop(rast(niantic_data$nlcd), e)
+vals <- unique(case2$Class)
+leg <- legend_nlcd[legend_nlcd$ID %in% vals$Class,]
+values(case2) <- factor(values(case2))
 
-my_key <- list(rectangles=list(col = leg$Color),
-              text=list(lab=leg$Class),
-              space='left',
-              columns=1,
-              size=2,
-              cex=.6)
-colors <- legend_nlcd$Color
-plot(case2, col = legend_nlcd$Color)
-plot(case2_north, pch = 1, col = "black", cex = 25, lwd = 3, add = TRUE)
-plot(case2_south, pch = 1, col = "black", cex = 18, lwd = 3, add = TRUE)
+bdist <- units::set_units(0.5, km)
+ptw <- st_point(x = c(1951000, 2290650))
+ptw <- ptw %>% st_sfc(crs = aea)
+ptw_buf <- st_buffer(ptw, bdist)
+
+pte <- st_point(x = c(1952900, 2291750))
+pte <- pte %>% st_sfc(crs = aea)
+pte_buf <- st_buffer(pte, bdist)
+
+ggplot() +  geom_spatraster(data = case2, aes(fill = Class)) +
+  scale_fill_manual(values = leg$Color, na.value = NA, na.translate = FALSE,
+                    labels = leg$Class) + labs(fill = "NLCD Class") +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+        legend.text = element_text(size = 7), 
+        legend.title = element_text(size = 10)) +
+  geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
 ```
-```{r, plot5b, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5B: Nitrogen Delivery Index over land cover, with hotter colors denoting higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency."}
-case2_delivery <- crop(niantic_static_maps$delivery_idx, e)
-plot(case2, col = legend_nlcd$Color, alpha = 0.6, legend = FALSE)
-plot(case2_delivery, breaks = c(20, 40, 60, 80, 100), col = c("#FFBEBE", "#F57A7A","#A80405","#652600"), add = TRUE)
-plot(case2_north, pch = 1, col = "black", cex = 25, lwd = 3, add = TRUE)
-plot(case2_south, pch = 1, col = "black", cex = 18, lwd = 3, add = TRUE)
- 
+
+```{r table3-build, eval = TRUE, include = FALSE}
+table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegetated",
+                                      "Wetlands", "Other"),
+                     "West (%)" = c("23","7","64","6","0"),
+                     "East (%)" = c("20","0","61","18","1"),
+                     check.names = FALSE)
+```
+```{r table3, include = TRUE, echo = FALSE}
+knitr::kable(table3, caption = "Table 3: Summary of Land Cover in Highlighted Areas of Interest")
+```
+
+An analysis of N delivery from these two similarly developed areas, however, show the western area is leakier than the eastern area, as assessed by summing the delivery index values (Figure 5B; West = 15759, East = 6770), suggesting that N source controls within the western development might be considered.
+
+```{r, plot5b, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5B: Nitrogen Delivery Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas. Hotter colors denote higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency."}
+
+from <- c(seq(0,90,10), NA)
+to <- c(seq(10,100,10), NA)
+delivery_idx <- classify(rast(niantic_static_maps$delivery_idx),matrix(c(from,to,to),ncol = 3))
+case2_delivery <- crop(delivery_idx, e)
+case2_delivery[case2_delivery < 20] <- 10
+values(case2_delivery) <- factor(values(case2_delivery))
+
+cols10 <-  c("white", "#FFBEBE", "#FAA8A8", "#FA9191", "#F57A7A",
+           "#DB5252", "#C22B2C", "#A80405",
+           "#910F04", "#7B1B02", "#652600")
+
+ggplot() + geom_spatraster(data = case2_delivery) +
+  scale_fill_manual(values = cols10, na.value = "white", na.translate = FALSE) +
+  guides(fill = guide_legend(reverse = TRUE)) + 
+  labs(fill = "") +
+  geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
 ```
 
 Other examples using N-Sink to examine the N loading implications of past land use decisions are also available as [bonus maps](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31) on the N-Sink website.
