@@ -15,11 +15,11 @@ author:
 - '^\*^ \*corresponding author: <qkellogg@uri.edu*>'
 bibliography: manuscript.bib
 output:
-  word_document:
-    reference_docx: manuscript_template.docx
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
+  word_document:
+    reference_docx: manuscript_template.docx
 editor_options:
   chunk_output_type: console
 csl: ecology.csl
