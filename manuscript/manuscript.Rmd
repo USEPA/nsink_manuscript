@@ -2,7 +2,7 @@
 title: "Assessing landscape N removal in coastal New England catchments using the
   N-Sink approach with a new R package, nsink"
 author:
-- Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\*^ ^*2*^, Arnold, C.^*3*^, Gold, A.^*1*^,
+- Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\*^ ^*2*^, Arnold, C. L.^*3*^, Gold, A. J. ^*1*^,
   Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Forshay, K. J.^*4*^
 - ^*1*^ University of Rhode Island, Department of Natural Resources Science, Kingston,
   RI 02881
@@ -25,12 +25,13 @@ editor_options:
 csl: ecology.csl
 abstract: "Excess nitrogen (N) loading to coastal ecosystems impairs estuarine water
   quality. Land management decisions made within estuarine watersheds have a direct
-  impact on downstream N delivery. Natural features within watersheds can act as landscape
-  sinks for N, such as wetlands, streams and ponds that transform dissolved N into
-  gaseous N, effectively removing it from the aquatic system. Identifying and evaluating
-  these landscape sinks and their spatial relationship to N sources can help managers
-  understand the effects of alternative decisions on downstream resources. N-Sink
-  is an approach that uses widely available GIS data to identify landscape sinks within
+  impact on downstream N delivery. Natural features frequently found within the 
+  headwaters of watersheds can act as landscape sinks for N, such as wetlands, streams 
+  and ponds that transform dissolved N into gaseous N, effectively removing it from 
+  the aquatic system. Identifying and evaluating these landscape sinks and their spatial
+  relationship to N sources can help managers understand the effects of alternative 
+  decisions on downstream resources. N-Sink is an approach that uses widely available 
+  GIS data to identify landscape sinks within
   HUC-12 (or larger) catchments, estimate their N removal potential and map the effect
   of those sinks on N movement through the catchment. A series of static maps are
   produced to visualize N removal efficiency, transport and delivery, the latter in
@@ -68,7 +69,7 @@ library(tidyterra)
 niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```
 
-```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
+```{r get-data, eval=FALSE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
 niantic_download <- nsink_get_data(niantic_huc_id, 
@@ -79,9 +80,9 @@ niantic_download <- nsink_get_data(niantic_huc_id,
 Introduction
 ============
 
-Excess nitrogen (N) delivery via surface water to coastal estuaries contributes to impaired water quality evidenced by excess algal blooms and hypoxia [@ryther1971nitrogen; @howarth2006nitrogen; @nixon1995coastal]. Hydrologic connections and flowpaths are influential in the delivery of nutrients to estuaries [@mengistu2020wetland]. Identifying landscape N sinks along hydrologic flowpaths -- areas where dissolved N is transformed to gaseous N and effectively removed from the aquatic system -- and their effect on N delivery at the watershed scale is helpful to watershed managers, land use planners and conservation organizations. N-Sink, and its associated R package `nsink`, were developed to be a screening tool that describes the areas or points within a watershed linked with flow paths where downgradient N sinks process and remove excess N, versus areas where downgradient N sinks are less prevalent or less effective at removing N [@hollister2022nsink; @R]. This watershed flow path approach provides a means to easily visualize the relative sensitivity of an area within a watershed that may require more aggressive N management at the source, protection of existing N retentive areas, or restoration and construction of downgradient N retentive areas that are needed to reduce N delivery to estuaries. 
+Excess nitrogen (N) delivery via surface water to coastal estuaries contributes to impaired water quality evidenced by excess algal blooms and hypoxia [@ryther1971nitrogen; @howarth2006nitrogen; @nixon1995coastal]. Hydrologic connections and flowpaths are influential in the delivery of nutrients to estuaries [@mengistu2020wetland]. Identifying landscape N sinks along hydrologic flowpaths -- areas where dissolved N is transformed to gaseous N and effectively removed from the aquatic system -- and their effect on N delivery at the watershed scale could provide watershed managers, land use planners and conservation organizations additional strategies that target N reductions. N-Sink, and its associated R package `nsink`, were developed to be a screening tool that describes the areas or points within a watershed linked with flow paths where downgradient N sinks process and remove excess N, versus areas where downgradient N sinks are less prevalent or less effective at removing N [@hollister2022nsink; @R]. This watershed flow path approach provides a means to easily visualize the relative sensitivity of an area within a watershed that may require more aggressive N management at the source, protection of existing N retentive areas, or restoration and construction of downgradient N retentive areas that are needed to reduce N delivery to estuaries. 
 
-N-Sink was developed as a web-based tool to visualize and explore landscape N sinks at the HUC-12 scale (HUC = Hydrologic Unit Code; [@berelson2004mapping]), and makes extensive use of widely available GIS data. The theoretical underpinnings are outlined in Kellogg et al. [-@kellogg2010geospatial] and build on peer-reviewed meta-analyses and reviews [@mayer2007meta; @alexander2007role; @seitzinger2006denitrification] to estimate N removal within landscape N sinks -- wetlands, streams and ponds. Residence time within landscape features that support N removal through denitrification is the primary driver of N retention and transformation [e.g., @klocker2009nitrogen].
+N-Sink was developed as a web-based tool to visualize and explore landscape N sinks at the HUC-12 scale (HUC = Hydrologic Unit Code; [@berelson2004mapping]), and makes extensive use of widely available GIS data. The theoretical underpinnings are outlined in Kellogg et al. [-@kellogg2010geospatial] and build on peer-reviewed meta-analyses and reviews [@mayer2007meta; @alexander2007role; @seitzinger2006denitrification] to estimate N removal within landscape N sinks -- wetlands, streams and ponds. The approach relies on residence time within landscape features that support N removal as the primary driver of N retention and transformation [e.g., @klocker2009nitrogen].
 
 The `nsink` R package was written to simplify the acquisition and management of the spatial data necessary to estimate N removal within each identified landscape sink, estimate cumulative N removal along a specified flowpath, and create a set of static watershed maps [@hollister2022nsink] . Datasets used by `nsink` include the National Hydrography Dataset Plus (NHDPlus), Soil Survey Geographic Database (SSURGO), the National Land Cover Dataset (NLCD) land cover and the National Land Cover Dataset (NLCD) impervious surface [@jin2019overall; @moore2019user; @soil2017web]. The static maps illustrate 1) N Removal Efficiency, a color-coded map of the estimated N removal efficiency of the different landscape sinks; 2) N Transport Index, a heat map with the cumulative N removal along flowpaths originating from sources represented by a grid of points across a watershed. This heat map highlights “leaky” source areas with less downstream N retention versus those with higher downstream retention; and 3) N Delivery Index, combining maps (1) and (2) along with source loading based on NLCD categories and expressed as an index ranging from 0 to 1, resulting in a map showing potential N delivery from different sources, after accounting for the potential N removal as water moves downstream. N-Sink and `nsink` integrate these data to make the application of complex hydrologic and biogeochemical processes accessible to end users and stakeholders in a visually clear and useful format. Here we describe the development of the package, and example workflow, and simple use applications to demonstrate the capabilities of the tools.
 
@@ -170,7 +171,8 @@ aea <- 5072
 ## Linking to GEOS 3.8.1, GDAL 3.1.4, PROJ 6.3.1
 # Starting point
 
-pta <- c(1954039, 2291592)
+#pta <- c(1954039, 2291592)
+pta <- c(1953529, 2290811)
 start_loc_inter_a <- st_sf(st_sfc(st_point(pta), crs = aea))
 niantic_fp_a <- nsink_generate_flowpath(start_loc_inter_a, niantic_data)
 niantic_fp_removal_a <- nsink_summarize_flowpath(niantic_fp_a, niantic_removal)
@@ -225,9 +227,9 @@ In the NHD Plus dataset there are situations where a water body or stream segmen
 
 
 ## Caveats
-N-Sink was designed for catchments where surface and groundwater flow paths are not highly manipulated. In settings where substantial storm water conveyance networks or extensive subsurface agricultural drainage bypasses the processes within wetland ecosystems, the removal of N in riparian zones is likely to be overstated. The variation in loading associated with different agricultural practices, density of unsewered development and inputs from wastewater treatment plants are not encompassed in the default loading index. Thus the numeric outputs of the tool focus on metrics suitable for planning purposes, such as percent removal of N from source to receiving water and relative intensity of loading from different locations. It is not intended to replace high-resolution models that rely on long term weather records and incorporate detailed spatial data on N loading, within-field transport or variable source hydrology (e.g., Easton [-@easton2008re]). Instead, N-Sink combines widely available datasets for waterway networks, soils and land cover with nitrogen dynamics developed for these datasets to highlight major sources and sinks of nitrogen within a watershed context. 
+N-Sink was designed for catchments where surface and groundwater flow paths are not highly manipulated. In settings where substantial storm water conveyance networks or extensive subsurface agricultural drainage are present, flow can bypass the removal processes within wetland ecosystems [@gold2001landscape]. In these situations first-order streams may be channelized, leading to higher velocities than in undisturbed channels and the N-Sink estimates of removal may be overstated.N-Sink does not account for nitrogen removal from high permeability (e.g., sand and gravel) unconfined aquifers along the coastal margin. Here, nitrogen-enriched groundwater may enter estuaries directly as submarine discharge rather than via baseflow to stream networks [@nowicki2008groundwater], requiring site specific assessments to evaluate N removal in salt marshes or as upwelling into the seabed [@addy2005denitrification;@robinson2018groundwater]. These situations have been estimated to account for approximately 6% of freshwater inputs to estuaries globally and in areas of New England [@burnett2003groundwater;@nowicki2008groundwater].
 
-<!-- SHOULD WE ADD SOMETHING ABOUT AREAS WHERE GROUNDWATER FLOW DOMINATES (E.G. CAPE COD)? -->
+The variation in loading associated with different agricultural practices, density of unsewered development and inputs from wastewater treatment plants are not encompassed in the default loading index. Thus the numeric outputs of the tool focus on metrics suitable for planning purposes, such as percent removal of N from source to receiving water and relative intensity of loading from different locations. It is not intended to replace high-resolution models that rely on long term weather records and incorporate detailed spatial data on N loading, within-field transport or variable source hydrology (e.g., Easton [-@easton2008re])). Instead, N-Sink combines widely available datasets for waterway networks, soils and land cover with nitrogen dynamics developed for these datasets to highlight major sources and sinks of nitrogen within a watershed context. 
 
 
 Use Examples
@@ -254,12 +256,14 @@ Using this approach, we can compare the N delivery from two locations that are s
 
 ```{r plot4, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Figure 4: Flowpaths originating from two nearby locations within the Niantic River HUC-12 with differing N removal estimates. Hydrofeatures are pictured on the Nitrogen Transport Index map."}
 
-pta <- c(1954039, 2291592)
+#pta <- c(1954039, 2291592)
+pta <- c(1953529, 2290811)
 start_loc_inter_a <- st_sf(st_sfc(st_point(pta), crs = aea))
 niantic_fp_a <- nsink_generate_flowpath(start_loc_inter_a, niantic_data)
 niantic_fp_removal_a <- nsink_summarize_flowpath(niantic_fp_a, niantic_removal)
 
-ptb <- c(1953529, 2290811)
+#ptb <- c(1953529, 2290811)
+ptb <- c(1954039, 2291592)
 start_loc_inter_b <- st_sf(st_sfc(st_point(ptb), crs = aea))
 niantic_fp_b <- nsink_generate_flowpath(start_loc_inter_b, niantic_data)
 niantic_fp_removal_b <- nsink_summarize_flowpath(niantic_fp_b, niantic_removal)
@@ -268,7 +272,7 @@ huc <- niantic_data$huc
 streams <- st_intersection(huc, niantic_data$streams)
 x <- c(pta[1], ptb[1])
 y <- c(pta[2], ptb[2])
-labels <- c("A", "B")
+labels <- c("B", "A")
 pts_df <- data.frame(x,y,labels)
 ab_plot <- st_as_sf(pts_df, coords = c("x","y"), crs = aea)
 
@@ -346,9 +350,34 @@ table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegeta
 knitr::kable(table3, caption = "Table 3: Summary of Land Cover in Highlighted Areas of Interest")
 ```
 
-An analysis of N delivery from these two similarly developed areas, however, show the western area is leakier than the eastern area, as assessed by summing the delivery index values (Figure 5B; West = 15759, East = 6770), suggesting that N source controls within the western development might be considered.
 
-```{r, plot5b, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5B: Nitrogen Delivery Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas. Hotter colors denote higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency."}
+```{r, plot5b, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5B: Nitrogen Transport Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas."}
+
+from <- c(seq(0,90,10), NA)
+to <- c(seq(10,100,10), NA)
+
+tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
+case2_tnsport <- crop(tnsport_idx, e)
+values(case2_tnsport) <- factor(values(case2_tnsport))
+ggplot() +
+  geom_spatraster(data = case2_tnsport) +
+  scale_fill_manual(values = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", 
+                               "#E2F088", "#F5E871", "#F9C159", 
+                               "#F99844", "#F56A2E","#EF2820"), 
+                    na.value = NA, na.translate = FALSE) +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+        legend.text = element_text(size = 7), 
+        legend.title = element_text(size = 10)) +
+  guides(fill = guide_legend(reverse = TRUE)) + 
+  labs(fill = "") +
+  geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
+```
+
+
+An analysis of N delivery from these two similarly developed areas (average N loading index of developed areas: West = 0.57; East = 0.56),  show the western area may contribute more N loading to the estuary than the eastern area, with the average delivery index value of the western area (41) almost 80% higher than the eastern area (23; Figure 5c), suggesting a greater need for N source controls within the western development.
+
+```{r, plot5c, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5C: Nitrogen Delivery Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas. Darker colors denote higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency. "}
 
 from <- c(seq(0,90,10), NA)
 to <- c(seq(10,100,10), NA)
