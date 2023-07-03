@@ -15,9 +15,6 @@ author:
 - '^\*^ \*corresponding author: <qkellogg@uri.edu*>'
 bibliography: manuscript.bib
 output:
-  html_document:
-    df_print: paged
-  pdf_document: default
   word_document:
     reference_docx: manuscript_template.docx
 editor_options:
@@ -49,7 +46,9 @@ knitr::opts_chunk$set(
   eval = TRUE,
   cache = FALSE,
   tidy = FALSE,
-  message = FALSE
+  message = FALSE,
+  fig.height = 4.8,
+  fig.width = 6
 )
 #load(system.file("testdata.rda", package = "nsink"))
 #load("testdata.rda")
@@ -194,7 +193,7 @@ Individual flowpaths are useful for specific areas of interest, but it is also u
 niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 450)
 ```
 
-These static maps can be quickly plotted with `nsink_plot()` using the `map` argument to identify map type.  These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
+These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type.  These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
 
 ```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs."}
 
@@ -239,13 +238,16 @@ Use Examples
 
 Users can use the following to interactively identify a starting point for a flowpath of interest. 
 ```{r case1, echo = TRUE, eval = FALSE}
-
+# Plot watershed with base R
+plot(st_geometry(niantic_data$huc))
 # Select location on map for starting point using cursor and click
 pt <- unlist(locator(n = 1))
 # Convert to sf POINT
 start_loc <- st_sf(st_sfc(st_point(pt), crs = aea))
 # Generate the flowpath
 niantic_fp <- nsink_generate_flowpath(start_loc, niantic_data)
+# Plot flowpath
+plot(st_geometry(niantic_fp$flowpath_network), add = TRUE)
 # Summarize N removal along the flowpath
 niantic_removal <- nsink_calc_removal(niantic_data)
 # table of removal within flowpath segments
@@ -254,7 +256,7 @@ niantic_fp_removal <- nsink_summarize_flowpath(niantic_fp, niantic_removal)
 
 Using this approach, we can compare the N delivery from two locations that are separated by approximately 900 meters. This example illustrates the importance of location with respect to landscape N sinks. Approximately 56% of the N that originates at point A is transported to the estuary vs. approximately 25% of the N that originates at point B (Figure 4). The difference is due to the different N sinks encountered along the way to the estuary. Most of the removal that occurs along flowpath A is due to flow through hydric (wetland) soils, with little removal occurring during flow along the downgradient stream network (Table 2). Flowpath B encounters a large pond along the way, significantly increasing residence time and N transformation (Table 3). These two currently undeveloped locations demonstrate the importance of understanding the landscape position and its role in the movement of N from source to outlet. If development were proposed in the western portion of this area (flowpath A), source controls could be advised, while the less "leaky "eastern region (flowpath B) underlines the importance of wetlands and slow moving water ways, such as ponds, that protect downstream waters by slowing flow and increasing opportunities for N transformation.
 
-```{r plot4, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Figure 4: Flowpaths originating from two nearby locations within the Niantic River HUC-12 with differing N removal estimates. Hydrofeatures are pictured on the Nitrogen Transport Index map."}
+```{r plot4, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Figure 4: Flowpaths originating from two nearby locations within the Niantic River HUC-12 with differing N removal estimates. Hydrofeatures are pictured on the Nitrogen Transport Index map.", fig.height = 10, fig.width = 7.5}
 
 #pta <- c(1954039, 2291592)
 pta <- c(1953529, 2290811)
@@ -282,7 +284,7 @@ to <- c(seq(10,100,10), NA)
 tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
 values(tnsport_idx) <- factor(values(tnsport_idx))
 
-ggplot() +
+map <- ggplot() +
   geom_spatraster(data = tnsport_idx) +
   scale_fill_manual(values = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", 
                                         "#E2F088", "#F5E871", "#F9C159", 
@@ -295,7 +297,11 @@ ggplot() +
   geom_sf(data = niantic_fp_b$flowpath_network, color = "grey0", linewidth = 0.9) +
   geom_sf(data = niantic_fp_b$flowpath_ends, color = "grey0", linewidth = 0.9) +
   geom_sf(data = ab_plot, pch = 16, size = 2) + 
-  geom_sf_label(data = ab_plot, aes(label = labels))
+  geom_sf_label(data = ab_plot, aes(label = labels)) +
+  theme_bw() +
+  labs(x = "", y = "")
+map
+ggsave("fig4.jpg", map, height = 10, width = 7.5)
 ```
 
 
@@ -329,15 +335,20 @@ pte <- st_point(x = c(1952900, 2291750))
 pte <- pte %>% st_sfc(crs = aea)
 pte_buf <- st_buffer(pte, bdist)
 
-ggplot() +  geom_spatraster(data = case2, aes(fill = Class)) +
+map <- ggplot() +  geom_spatraster(data = case2, aes(fill = Class)) +
   scale_fill_manual(values = leg$Color, na.value = NA, na.translate = FALSE,
                     labels = leg$Class) + labs(fill = "NLCD Class") +
   theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
         legend.text = element_text(size = 7), 
         legend.title = element_text(size = 10)) +
   geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
-  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5) +
+  theme_bw() +
+  labs(x = "", y = "")
+map
+ggsave("fig5a.jpg", map, height = 6.5, width = 7.5)
 ```
+
 
 ```{r table3-build, eval = TRUE, include = FALSE}
 table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegetated",
@@ -359,7 +370,7 @@ to <- c(seq(10,100,10), NA)
 tnsport_idx <- classify(rast(niantic_static_maps$transport_idx),matrix(c(from,to,to),ncol = 3))
 case2_tnsport <- crop(tnsport_idx, e)
 values(case2_tnsport) <- factor(values(case2_tnsport))
-ggplot() +
+map <- ggplot() +
   geom_spatraster(data = case2_tnsport) +
   scale_fill_manual(values = c("#38A1D0", "#7AB4C0", "#A2C8B0","#C3DC9D", 
                                "#E2F088", "#F5E871", "#F9C159", 
@@ -371,8 +382,13 @@ ggplot() +
   guides(fill = guide_legend(reverse = TRUE)) + 
   labs(fill = "") +
   geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
-  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5) +
+  theme_bw() +
+  labs(x = "", y = "")
+map
+ggsave("fig5b.jpg", map, height = 6, width = 7.5)
 ```
+
 
 
 An analysis of N delivery from these two similarly developed areas (average N loading index of developed areas: West = 0.57; East = 0.56),  show the western area may contribute more N loading to the estuary than the eastern area, with the average delivery index value of the western area (41) almost 80% higher than the eastern area (23; Figure 5c), suggesting a greater need for N source controls within the western development.
@@ -390,14 +406,20 @@ cols10 <-  c("white", "#FFBEBE", "#FAA8A8", "#FA9191", "#F57A7A",
            "#DB5252", "#C22B2C", "#A80405",
            "#910F04", "#7B1B02", "#652600")
 
-ggplot() + geom_spatraster(data = case2_delivery) +
+map <- ggplot() + geom_spatraster(data = case2_delivery) +
   scale_fill_manual(values = cols10, na.value = "white", na.translate = FALSE) +
   guides(fill = guide_legend(reverse = TRUE)) + 
   labs(fill = "") +
   geom_sf(data = ptw_buf, color = "black", fill = NA, linewidth = 1.5) +
-  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5)
+  geom_sf(data = pte_buf, color = "black", fill = NA, linewidth = 1.5) +
+  theme_bw() +
+  labs(x = "", y = "")
+map
+ggsave("fig5c.jpg", map, height = 6, width = 7.5)
 ```
 
+
+ 
 Other examples using N-Sink to examine the N loading implications of past land use decisions are also available as [bonus maps](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31) on the N-Sink website.
 
 
