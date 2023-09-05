@@ -151,7 +151,7 @@ niantic_data <- nsink_prep_data(niantic_huc_id, projection = aea,
 The next step in the N-Sink workflow is to calculate potential nitrogen removal within each landscape sink, expressed as percent of incoming N. Details on how the nitrogen removal estimates are calculated are available in Kellogg et al. [-@kellogg2010geospatial], and make use of peer-reviewed literature. Since the publication of that article, changes have been implemented to make better use of the most recently available geospatial data. Those changes are described below. The `nsink_calc_removal()` function takes the prepared data as an input and returns a "list" with three items:
 
 - raster_method: Contains a raster-based approach to calculating removal.  Used for the static maps showing potential N removal within landscape sinks.
-- land_removal: Represents land-based nitrogen removal within vegetated hydric soils with impervious surface removed).
+- land_removal: Represents land-based nitrogen removal within vegetated hydric soils with impervious surface removed.
 - network_removal: Contains removal along the NHD Plus flow network. Removal is calculated separately for streams and waterbodies (i.e., lakes and reservoirs).
 
 ```{r calc-removal, eval = TRUE, include = FALSE}
@@ -193,17 +193,17 @@ Individual flowpaths are useful for specific areas of interest, but it is also u
 niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 450)
 ```
 
-These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type.  These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
+These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type. For example, `nsink_plot(niantic_static_maps, map = "removal")` will create a plot of Nitrogen Removal Efficiency (Figure 1).  The other `map` argument options are "transport" and "delivery" (Figures 2-3). These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
 
-```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs."}
+```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs.", echo=FALSE}
 
 nsink_plot(niantic_static_maps, map = "removal")
 ```
-```{r plot2, fig.cap = "Figure 2: Nitrogen Transport Index (range 0 to 100%) for the Niantic River HUC-12, showing the estimated percentage of N originating at a given location within a watershed that is expected to reach downstream receiving waters, such as a coastal embayment."}
+```{r plot2, fig.cap = "Figure 2: Nitrogen Transport Index (range 0 to 100%) for the Niantic River HUC-12, showing the estimated percentage of N originating at a given location within a watershed that is expected to reach downstream receiving waters, such as a coastal embayment.", echo=FALSE}
 
 nsink_plot(niantic_static_maps, map = "transport")
 ```
-```{r plot3, fig.cap = "Figure 3: Nitrogen Delivery Index (range 0 to 100%) for the Niantic River HUC-12, showing a relative measure of the estimated N being transported from a location within a mapped watershed to receiving waters. N loading estimates are based on land cover classes, making use of peer-reviewed published data, and normalized, with a range of 0 to 1. These N loading factors are then multiplied by the N Transport Efficiency (range 0 to 100) from a given location within a watershed, to arrive at the NDI."}
+```{r plot3, fig.cap = "Figure 3: Nitrogen Delivery Index (range 0 to 100%) for the Niantic River HUC-12, showing a relative measure of the estimated N being transported from a location within a mapped watershed to receiving waters. N loading estimates are based on land cover classes, making use of peer-reviewed published data, and normalized, with a range of 0 to 1. These N loading factors are then multiplied by the N Transport Efficiency (range 0 to 100) from a given location within a watershed, to arrive at the NDI.", echo=FALSE}
 
 nsink_plot(niantic_static_maps, map = "delivery")
 ```
@@ -226,7 +226,7 @@ In the NHD Plus dataset there are situations where a water body or stream segmen
 
 
 ## Caveats
-N-Sink was designed for catchments where surface and groundwater flow paths are not highly manipulated. In settings where substantial storm water conveyance networks or extensive subsurface agricultural drainage are present, flow can bypass the removal processes within wetland ecosystems [@gold2001landscape]. In these situations first-order streams may be channelized, leading to higher velocities than in undisturbed channels and the N-Sink estimates of removal may be overstated.N-Sink does not account for nitrogen removal from high permeability (e.g., sand and gravel) unconfined aquifers along the coastal margin. Here, nitrogen-enriched groundwater may enter estuaries directly as submarine discharge rather than via baseflow to stream networks [@nowicki2008groundwater], requiring site specific assessments to evaluate N removal in salt marshes or as upwelling into the seabed [@addy2005denitrification;@robinson2018groundwater]. These situations have been estimated to account for approximately 6% of freshwater inputs to estuaries globally and in areas of New England [@burnett2003groundwater;@nowicki2008groundwater].
+N-Sink was designed for catchments where surface and groundwater flow paths are not highly manipulated. In settings where substantial storm water conveyance networks or extensive subsurface agricultural drainage are present, flow can bypass the removal processes within wetland ecosystems [@gold2001landscape]. In these situations first-order streams may be channelized, leading to higher velocities than in undisturbed channels and the N-Sink estimates of removal may be overstated. N-Sink does not account for nitrogen removal from high permeability (e.g., sand and gravel) unconfined aquifers along the coastal margin. Here, nitrogen-enriched groundwater may enter estuaries directly as submarine discharge rather than via baseflow to stream networks [@nowicki2008groundwater], requiring site specific assessments to evaluate N removal in salt marshes or as upwelling into the seabed [@addy2005denitrification;@robinson2018groundwater]. These situations have been estimated to account for approximately 6% of freshwater inputs to estuaries globally and in areas of New England [@burnett2003groundwater;@nowicki2008groundwater].
 
 The variation in loading associated with different agricultural practices, density of unsewered development and inputs from wastewater treatment plants are not encompassed in the default loading index. Thus the numeric outputs of the tool focus on metrics suitable for planning purposes, such as percent removal of N from source to receiving water and relative intensity of loading from different locations. It is not intended to replace high-resolution models that rely on long term weather records and incorporate detailed spatial data on N loading, within-field transport or variable source hydrology (e.g., Easton [-@easton2008re])). Instead, N-Sink combines widely available datasets for waterway networks, soils and land cover with nitrogen dynamics developed for these datasets to highlight major sources and sinks of nitrogen within a watershed context. 
 
@@ -236,7 +236,7 @@ Use Examples
 
 ## Example 1: Comparison of N delivery from two adjacent locations
 
-Users can use the following to interactively identify a starting point for a flowpath of interest. 
+Users can use the following code to interactively identify a starting point for a flowpath of interest. 
 ```{r case1, echo = TRUE, eval = FALSE}
 # Plot watershed with base R
 plot(st_geometry(niantic_data$huc))
