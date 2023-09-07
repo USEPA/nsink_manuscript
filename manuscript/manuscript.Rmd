@@ -44,7 +44,7 @@ abstract: "Excess nitrogen (N) loading to coastal ecosystems impairs estuarine w
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   eval = TRUE,
-  cache = FALSE,
+  cache = TRUE,
   tidy = FALSE,
   message = FALSE,
   fig.height = 4.8,
@@ -83,7 +83,8 @@ Excess nitrogen (N) delivery via surface water to coastal estuaries contributes 
 
 N-Sink was developed as a web-based tool to visualize and explore landscape N sinks at the HUC-12 scale (HUC = Hydrologic Unit Code; [@berelson2004mapping]), and makes extensive use of widely available GIS data. The theoretical underpinnings are outlined in Kellogg et al. [-@kellogg2010geospatial] and build on peer-reviewed meta-analyses and reviews [@mayer2007meta; @alexander2007role; @seitzinger2006denitrification] to estimate N removal within landscape N sinks -- wetlands, streams and ponds. The approach relies on residence time within landscape features that support N removal as the primary driver of N retention and transformation [e.g., @klocker2009nitrogen].
 
-The `nsink` R package was written to simplify the acquisition and management of the spatial data necessary to estimate N removal within each identified landscape sink, estimate cumulative N removal along a specified flowpath, and create a set of static watershed maps [@hollister2022nsink] . Datasets used by `nsink` include the National Hydrography Dataset Plus (NHDPlus), Soil Survey Geographic Database (SSURGO), the National Land Cover Dataset (NLCD) land cover and the National Land Cover Dataset (NLCD) impervious surface [@jin2019overall; @moore2019user; @soil2017web]. The static maps illustrate 1) N Removal Efficiency, a color-coded map of the estimated N removal efficiency of the different landscape sinks; 2) N Transport Index, a heat map with the cumulative N removal along flowpaths originating from sources represented by a grid of points across a watershed. This heat map highlights “leaky” source areas with less downstream N retention versus those with higher downstream retention; and 3) N Delivery Index, combining maps (1) and (2) along with source loading based on NLCD categories and expressed as an index ranging from 0 to 1, resulting in a map showing potential N delivery from different sources, after accounting for the potential N removal as water moves downstream. N-Sink and `nsink` integrate these data to make the application of complex hydrologic and biogeochemical processes accessible to end users and stakeholders in a visually clear and useful format. Here we describe the development of the package, and example workflow, and simple use applications to demonstrate the capabilities of the tools.
+The `nsink` R package was written to simplify the acquisition and management of the spatial data necessary to estimate N removal within each identified landscape sink, estimate cumulative N removal along a specified flowpath, and create a set of static watershed maps [@hollister2022nsink] . Datasets used by `nsink` include the National Hydrography Dataset Plus (NHDPlus), Soil Survey Geographic Database (SSURGO), the National Land Cover Dataset (NLCD) land cover and the National Land Cover Dataset (NLCD) impervious surface [@jin2019overall; @moore2019user; @soil2017web]. The static maps illustrate 1) N Removal Efficiency, a color-coded map of the estimated N removal efficiency of the different landscape sinks; 2) N Transport Index, a heat map with the cumulative N removal along flowpaths originating from sources represented by a grid of points across a watershed. This heat map highlights “leaky” source areas with less downstream N retention versus those with higher downstream retention; and 3) N Delivery Index, combining maps (1) and (2) along with source loading based on NLCD categories and expressed as an index ranging from 0 to 1, resulting in a map showing potential N delivery from different sources, after accounting for the potential N removal as water moves downstream. N-Sink and `nsink` integrate these data to make the application of complex hydrologic and biogeochemical processes accessible to end users and stakeholders in a visually clear and useful format. Here we describe the development of the package, and example workflow, and simple use applications to demonstrate the capabilities of the tools. The code for this analysis is available from <https://github.com/USEPA/nsink_manuscript/> and is archived at <https://doi.org/10.5281/zenodo.8325360>.  All analyses were conducted with R version 4.2.2 and details on R package versions and operating system used for this analysis are included in a file, `sessioninfo.txt` at <https://github.com/USEPA/ri_wq_trends/blob/master/sessioninfo.txt> [@r2022; @here; @ggplot2; @sf1; @sf2; @knitr1; @knitr2; @knitr3; @feddata; @hollister2022nsink; @units; @raster; @terra; @tidyterra; @lubridate; @units].
+  
 
 <!-- EPA Review Comment: If the paper is about N-Sink integrating nsink it feels like the introduction could benefit from some more mention of N-Sink’s value-add at the end of the intro. Even just a sentence about a pre-analyzed web map being accessible to people who aren’t familiar with R.-->
 
@@ -429,6 +430,28 @@ Conclusions
 N-Sink as implemented in the `nsink` R package allows users to easily download all necessary spatial data (hydrography, land cover and soils), create static maps (N Removal Efficiency, N Transport Efficiency and N Delivery Index), and interactively investigate N removal along flowpaths within any specified catchment. Currently, the default catchment definition uses HUC-12 designations, though it is also possible to use larger catchments. Larger catchments would require longer download and processing times. For investigators who do not work in R, we have created a web application that covers HUC-12 catchments in coastal CT, RI and southern MA using an [interactive tool](https://uconnclear.maps.arcgis.com/apps/MapSeries/index.html?appid=e96b01502f5b4aeda64aacf0cb5234c7&folderid=dde199a7cf674845a83b43a3011b1d31).
 
 N-Sink is a decision support tool and was created to be a useful, easy way for local land use managers to explore the relationship between land use and nitrogen pollution in their waters. Currently N-Sink is being used as an integral component in a project based in Long Island Sound, funded by the [Long Island Sound Study Research Fund](https://longislandsoundstudy.net/2022-research-project-descriptions/). The project is focused on targeting outreach on fertilizer use within the 43,560 km2 catchment. Local decision-makers that have prioritized nitrogen mitigation in their long-term planning efforts can use this tool to help them better understand the potential impact of proposed development projects and zoning variances. Similarly, land trusts and other NGOs interested in N mitigation can use this tool to identify high priority areas for acquisition or restoration. 
+
+```{r session_info, echo=FALSE}
+#Send session info to a file: 
+capture.output(sessionInfo(),file=here::here("sessioninfo.txt"))
+```
+
+Acknowledgements
+================
+
+Many people have contributed in various ways to the development of the N-Sink 
+concept. In particular, we would like to thank Peter August and Chris Damon of 
+the University of Rhode Island’s Department of Natural Resources Science.  
+Additionally, we are grateful to Stephen Shivers, Anne Kuhn, Andrea Bartolotti, 
+Suzanne Ayvazian, and Tim Gleason for constructive reviews of this paper. The 
+views expressed in this article are those of the authors and do not necessarily 
+represent the views or policies of the U.S. Environmental Protection Agency. Any 
+mention of trade names, products, or services does not imply an endorsement by 
+the U.S. Government or the U.S. Environmental Protection Agency. The EPA does 
+not endorse any commercial products, services, or enterprises. This contribution 
+is identified by the tracking number ORD-054342 of the Atlantic Coastal 
+Environmental Sciences Division, Office of Research and Development, Center for 
+Environmental Measurement and Modeling, US Environmental Protection Agency.
 
 Bibliography
 ============

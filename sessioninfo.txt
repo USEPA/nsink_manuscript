@@ -1,0 +1,41 @@
+R version 4.2.2 (2022-10-31 ucrt)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 22000)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=English_United States.utf8 
+[2] LC_CTYPE=English_United States.utf8   
+[3] LC_MONETARY=English_United States.utf8
+[4] LC_NUMERIC=C                          
+[5] LC_TIME=English_United States.utf8    
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] sf_1.0-13          tidyterra_0.3.2    terra_1.7-39       ggplot2_3.4.2     
+[5] raster_3.6-20      sp_2.0-0           nsink_1.3.4        FedData_3.0.4.9000
+
+loaded via a namespace (and not attached):
+ [1] tidyr_1.3.0        here_1.0.1         highr_0.10         yaml_2.3.7        
+ [5] globals_0.16.2     pillar_1.9.0       lattice_0.20-45    glue_1.6.2        
+ [9] digest_0.6.31      colorspace_2.1-0   htmltools_0.5.5    pkgconfig_2.0.3   
+[13] listenv_0.9.0      stars_0.6-1        s2_1.1.4           purrr_1.0.1       
+[17] fasterize_1.0.4    scales_1.2.1       intervals_0.15.4   tzdb_0.4.0        
+[21] gstat_2.1-1        timechange_0.2.0   tibble_3.2.1       proxy_0.4-27      
+[25] generics_0.1.3     farver_2.1.1       withr_2.5.0        furrr_0.3.1       
+[29] cli_3.6.1          magrittr_2.0.3     evaluate_0.21      future_1.33.0     
+[33] fansi_1.0.4        parallelly_1.36.0  xts_0.13.1         lwgeom_0.2-13     
+[37] foreign_0.8-83     class_7.3-20       FNN_1.1.3.2        textshaping_0.3.6 
+[41] tools_4.2.2        data.table_1.14.8  hms_1.1.3          lifecycle_1.0.3   
+[45] munsell_0.5.0      compiler_4.2.2     e1071_1.7-13       spacetime_1.3-0   
+[49] systemfonts_1.0.4  rlang_1.1.1        classInt_0.4-9     units_0.8-2       
+[53] grid_4.2.2         rstudioapi_0.14    igraph_1.5.0       rmarkdown_2.21    
+[57] wk_0.7.3           gtable_0.3.3       codetools_0.2-18   abind_1.4-5       
+[61] DBI_1.1.3          R6_2.5.1           zoo_1.8-12         lubridate_1.9.2   
+[65] knitr_1.42         dplyr_1.1.2        fastmap_1.1.1      utf8_1.2.3        
+[69] rprojroot_2.0.3    ragg_1.2.5         KernSmooth_2.23-20 readr_2.1.4       
+[73] parallel_4.2.2     Rcpp_1.0.10        vctrs_0.6.3        tidyselect_1.2.0  
+[77] xfun_0.38         
