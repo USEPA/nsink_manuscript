@@ -38,7 +38,7 @@ abstract: "Excess nitrogen (N) loading to coastal ecosystems impairs estuarine w
   maps for a specific HUC-12 of interest, or users can visit the University of Connecticut
   website to explore previously mapped areas. Users can also investigate specific
   flowpaths interactively by clicking on any location within the catchment. A flowpath
-  is generated, along with a table describing N removal along each segment."
+  is generated, along with a table describing N removal along each segment." 
 ---
 
 ```{r, include = FALSE}
