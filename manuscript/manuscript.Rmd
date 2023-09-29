@@ -274,7 +274,7 @@ huc <- niantic_data$huc
 streams <- st_intersection(huc, niantic_data$streams)
 x <- c(pta[1], ptb[1])
 y <- c(pta[2], ptb[2])
-labels <- c("B", "A")
+labels <- c("A", "B")
 pts_df <- data.frame(x,y,labels)
 ab_plot <- st_as_sf(pts_df, coords = c("x","y"), crs = aea)
 
