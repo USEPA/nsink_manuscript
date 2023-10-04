@@ -2,8 +2,9 @@
 title: "Assessing landscape N removal in coastal New England catchments using the
   N-Sink approach with a new R package, nsink"
 author:
-- Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\*^ ^*2*^, Arnold, C. L.^*3*^, Gold, A. J. ^*1*^,
-  Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Forshay, K. J.^*4*^
+- "Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\\*^ ^*2*^, Arnold, C. L.^*3*^, Gold, A.
+  J. ^*1*^, Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Lei-Parent,
+  Qian*^*3*^, Forshay, K. J.^*4*^"
 - ^*1*^ University of Rhode Island, Department of Natural Resources Science, Kingston,
   RI 02881
 - ^*2*^ US Environmental Protection Agency, Office Of Research and Development, Atlantic
@@ -15,30 +16,33 @@ author:
 - '^\*^ \*corresponding author: <qkellogg@uri.edu*>'
 bibliography: manuscript.bib
 output:
+  pdf_document: default
   word_document:
     reference_docx: manuscript_template.docx
+  html_document:
+    df_print: paged
 editor_options:
   chunk_output_type: console
 csl: ecology.csl
 abstract: "Excess nitrogen (N) loading to coastal ecosystems impairs estuarine water
   quality. Land management decisions made within estuarine watersheds have a direct
-  impact on downstream N delivery. Natural features frequently found within the 
-  headwaters of watersheds can act as landscape sinks for N, such as wetlands, streams 
-  and ponds that transform dissolved N into gaseous N, effectively removing it from 
-  the aquatic system. Identifying and evaluating these landscape sinks and their spatial
-  relationship to N sources can help managers understand the effects of alternative 
-  decisions on downstream resources. N-Sink is an approach that uses widely available 
-  GIS data to identify landscape sinks within
-  HUC-12 (or larger) catchments, estimate their N removal potential and map the effect
-  of those sinks on N movement through the catchment. A series of static maps are
-  produced to visualize N removal efficiency, transport and delivery, the latter in
-  the form of an index. To facilitate data acquisition, processing and visualization,
-  an R package `nsink` was developed and applied to produce static maps for all HUC-12
-  catchments in southern New England. The R package can be used to develop N delivery
-  maps for a specific HUC-12 of interest, or users can visit the University of Connecticut
-  website to explore previously mapped areas. Users can also investigate specific
-  flowpaths interactively by clicking on any location within the catchment. A flowpath
-  is generated, along with a table describing N removal along each segment." 
+  impact on downstream N delivery. Natural features frequently found within the headwaters
+  of watersheds can act as landscape sinks for N, such as wetlands, streams and ponds
+  that transform dissolved N into gaseous N, effectively removing it from the aquatic
+  system. Identifying and evaluating these landscape sinks and their spatial relationship
+  to N sources can help managers understand the effects of alternative decisions on
+  downstream resources. N-Sink is an approach that uses widely available GIS data
+  to identify landscape sinks within HUC-12 (or larger) catchments, estimate their
+  N removal potential and map the effect of those sinks on N movement through the
+  catchment. A series of static maps are produced to visualize N removal efficiency,
+  transport and delivery, the latter in the form of an index. To facilitate data acquisition,
+  processing and visualization, an R package `nsink` was developed and applied to
+  produce static maps for all HUC-12 catchments in southern New England. The R package
+  can be used to develop N delivery maps for a specific HUC-12 of interest, or users
+  can visit the University of Connecticut website to explore previously mapped areas.
+  Users can also investigate specific flowpaths interactively by clicking on any location
+  within the catchment. A flowpath is generated, along with a table describing N removal
+  along each segment."
 ---
 
 ```{r, include = FALSE}
@@ -54,7 +58,7 @@ knitr::opts_chunk$set(
 #load("testdata.rda")
 ```
 
-```{r setup, echo=FALSE, warning = FALSE}
+```{r setup, echo=FALSE, eval = TRUE, warning = FALSE}
 library(FedData)
 library(nsink)
 library(raster)
@@ -68,7 +72,7 @@ library(tidyterra)
 niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```
 
-```{r get-data, eval=FALSE, cache=FALSE, include=FALSE}
+```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
 niantic_download <- nsink_get_data(niantic_huc_id, 
@@ -92,7 +96,7 @@ Methods
 =======
 
 ## Development of the R package `nsink`
-The package `nsink` implements the approach detailed in Kellogg et al. [-@kellogg2010geospatial] to estimate relative nitrogen (N) removal along a flowpath. The `nsink` package follows from an initial version of N-Sink written in ArcGIS using ModelBuilder. The initial version required time-consuming data manipulation by hand due to limitations of earlier NHDPlus datasets as well as the limitations of working in a GIS environment requiring a user license. With the increasingly more versatile GIS packages now available in R, the previously time-consuming spatial data acquisition and management of N-Sink was automated and applied to other HUC-12 catchments, leading to the development of the `nsink` package. Specifically, `nsink` relies on packages `sf` and `raster`. The `nsink` package is available from https://github.com/usepa/nsink and is fully described in [@hollister2022nsink].
+The package `nsink` implements the approach detailed in Kellogg et al. [-@kellogg2010geospatial] to estimate relative nitrogen (N) removal along a flowpath. The `nsink` package follows from an initial version of N-Sink written in ArcGIS using ModelBuilder. The initial version required time-consuming data manipulation by hand due to limitations of earlier NHDPlus datasets as well as the limitations of working in a GIS environment requiring a user license. With the increasingly more versatile GIS packages now available in R, the previously time-consuming spatial data acquisition and management of N-Sink was automated and applied to other HUC-12 catchments, leading to the development of the `nsink` package. Specifically, `nsink` relies on packages `sf` and `raster`. The `raster` package in R will soon be superseded by the `terra` package, which will be integrated in future `nsink` package versions. The `nsink` package is available from https://github.com/usepa/nsink and is fully described in [@hollister2022nsink].
 
 ## Using the `nsink` package
 The `nsink` package provides several functions (Table 1) to set up and run an N-Sink analysis for a specified 12-digit HUC. By using the package all required data are downloaded, prepared for the analysis, HUC-wide N removal calculated, and flowpaths summarized.  Additionally, a convenience function, `nsink_build()`, is included that will run all of the required functions for a specified HUC. The workflow follows a simple series of steps to create a set of static maps: N Removal Efficiency, N Transport Index, and N Delivery Index.
@@ -194,7 +198,7 @@ Individual flowpaths are useful for specific areas of interest, but it is also u
 niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal, 450)
 ```
 
-These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type. For example, `nsink_plot(niantic_static_maps, map = "removal")` will create a plot of Nitrogen Removal Efficiency (Figure 1).  The other `map` argument options are "transport" and "delivery" (Figures 2-3). These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a users choice (e.g. QGIS, `ggplot2`).
+These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type. For example, `nsink_plot(niantic_static_maps, map = "removal")` will create a plot of Nitrogen Removal Efficiency (Figure 1).  The other `map` argument options are "transport" and "delivery" (Figures 2-3). These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a user's choice (e.g. QGIS, `ggplot2`).
 
 ```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs.", echo=FALSE}
 
@@ -275,7 +279,7 @@ huc <- niantic_data$huc
 streams <- st_intersection(huc, niantic_data$streams)
 x <- c(pta[1], ptb[1])
 y <- c(pta[2], ptb[2])
-labels <- c("B", "A")
+labels <- c("A", "B")
 pts_df <- data.frame(x,y,labels)
 ab_plot <- st_as_sf(pts_df, coords = c("x","y"), crs = aea)
 
@@ -317,7 +321,7 @@ The maps produced by N-Sink can help prioritize source controls, sink protection
 
 Similarly, sources of N that are contributing relatively more N due to their location within the catchment can be highlighted using the `nsink` static maps. The N Delivery Index map combines N sources with N transport to highlight developed areas that are located on "leakier parts" of a catchment. Figure 5A displays a high resolution image of land cover in the same watershed as Example 1, with two developed areas circled.
 
-```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas (Table 3)."}
+```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas (Table 4)."}
 
 box <- c(1950000, 1953800, 2289700, 2293100)
 e <- ext(box)
@@ -351,14 +355,14 @@ ggsave("fig5a.jpg", map, height = 6.5, width = 7.5)
 ```
 
 
-```{r table3-build, eval = TRUE, include = FALSE}
+```{r table4-build, eval = TRUE, include = FALSE}
 table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegetated",
                                       "Wetlands", "Other"),
                      "West (%)" = c("23","7","64","6","0"),
                      "East (%)" = c("20","0","61","18","1"),
                      check.names = FALSE)
 ```
-```{r table3, include = TRUE, echo = FALSE}
+```{r table4, include = TRUE, echo = FALSE}
 knitr::kable(table3, caption = "Table 3: Summary of Land Cover in Highlighted Areas of Interest")
 ```
 
@@ -443,15 +447,20 @@ Many people have contributed in various ways to the development of the N-Sink
 concept. In particular, we would like to thank Peter August and Chris Damon of 
 the University of Rhode Island’s Department of Natural Resources Science.  
 Additionally, we are grateful to Stephen Shivers, Anne Kuhn, Andrea Bartolotti, 
-Suzanne Ayvazian, and Tim Gleason for constructive reviews of this paper. The 
-views expressed in this article are those of the authors and do not necessarily 
+Suzanne Ayvazian, and Tim Gleason for constructive reviews of this paper. 
+
+
+The views expressed in this article are those of the authors and do not necessarily 
 represent the views or policies of the U.S. Environmental Protection Agency. Any 
 mention of trade names, products, or services does not imply an endorsement by 
 the U.S. Government or the U.S. Environmental Protection Agency. The EPA does 
-not endorse any commercial products, services, or enterprises. This contribution 
-is identified by the tracking number ORD-054342 of the Atlantic Coastal 
-Environmental Sciences Division, Office of Research and Development, Center for 
-Environmental Measurement and Modeling, US Environmental Protection Agency.
+not endorse any commercial products, services, or enterprises. This research has 
+been supported, in part, by a cooperative agreement with the U.S. Environmental
+Protection Agency's Office of Research and Development, EPA Assistant Agreement
+Number CR83680001, "N-Sink tool and outreach to two watersheds in New England."
+This contribution is identified by the tracking number ORD-054342 of the 
+Atlantic Coastal Environmental Sciences Division, Office of Research and Development, 
+Center for Environmental Measurement and Modeling, US Environmental Protection Agency.
 
 Bibliography
 ============
