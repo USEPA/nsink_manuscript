@@ -2,9 +2,9 @@
 title: "Assessing landscape N removal in coastal New England catchments using the
   N-Sink approach with a new R package, nsink"
 author:
-- "Kellogg, D. Q. ^*1*^, Hollister. J. W. ^\\*^ ^*2*^, Arnold, C. L.^*3*^, Gold, A.
-  J. ^*1*^, Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.*^*3*^, Lei-Parent,
-  Qian*^*3*^, Forshay, K. J.^*4*^"
+- "Kellogg, D. Q.^\\*^^*1*^, Hollister. J. W. ^*2*^, Arnold, C. L.^*3*^, Gold, A.
+  J. ^*1*^, Wilson, E. H.^*3*^, Chadwick, C.^*3*^, Dickson, D.^*3*^, Lei-Parent,
+  Qian^*3*^, Forshay, K. J.^*4*^"
 - ^*1*^ University of Rhode Island, Department of Natural Resources Science, Kingston,
   RI 02881
 - ^*2*^ US Environmental Protection Agency, Office Of Research and Development, Atlantic
@@ -13,14 +13,15 @@ author:
   CT 06438
 - ^*4*^ US Environmental Protection Agency, Office Of Research and Development, Groundwater
   Characterization and Remediation Division, Ada, OK 74820
-- '^\*^ \*corresponding author: <qkellogg@uri.edu*>'
+- '^\*^corresponding author: <qkellogg@uri.edu>'
 bibliography: manuscript.bib
 output:
-  pdf_document: default
   word_document:
+    keep_md: true
     reference_docx: manuscript_template.docx
   html_document:
     df_print: paged
+  pdf_document: default
 editor_options:
   chunk_output_type: console
 csl: ecology.csl
@@ -52,7 +53,8 @@ knitr::opts_chunk$set(
   tidy = FALSE,
   message = FALSE,
   fig.height = 4.8,
-  fig.width = 6
+  fig.width = 6,
+  dpi = 300
 )
 #load(system.file("testdata.rda", package = "nsink"))
 #load("testdata.rda")
@@ -72,11 +74,10 @@ library(tidyterra)
 niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```
 
-```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
+```{r get-data, eval = TRUE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
-niantic_download <- nsink_get_data(niantic_huc_id, 
-                                  data_dir = "nsink_niantic_data/")
+nsink::nsink_get_data(niantic_huc_id, data_dir = "nsink_niantic_data/")
 ```
 
 
@@ -312,7 +313,7 @@ ggsave("fig4.jpg", map, height = 10, width = 7.5)
 
 
 ```{r compare-flowpaths, include = TRUE, echo = FALSE}
-knitr::kable(niantic_fp_removal_b, caption = "Table 3: Summary of N removal along specified flowpath B")
+knitr::kable(niantic_fp_removal_b, caption = "Table 3: Summary of N removal along specified flowpath B.")
 ```
 
 ## Example 2: Source controls and sink protection or restoration
@@ -363,7 +364,7 @@ table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegeta
                      check.names = FALSE)
 ```
 ```{r table4, include = TRUE, echo = FALSE}
-knitr::kable(table3, caption = "Table 3: Summary of Land Cover in Highlighted Areas of Interest")
+knitr::kable(table3, caption = "Table 4: Summary of land cover in highlighted areas of interest.")
 ```
 
 
@@ -396,9 +397,9 @@ ggsave("fig5b.jpg", map, height = 6, width = 7.5)
 
 
 
-An analysis of N delivery from these two similarly developed areas (average N loading index of developed areas: West = 0.57; East = 0.56),  show the western area may contribute more N loading to the estuary than the eastern area, with the average delivery index value of the western area (41) almost 80% higher than the eastern area (23; Figure 5c), suggesting a greater need for N source controls within the western development.
+An analysis of N delivery from these two similarly developed areas (average N loading index of developed areas: West = 0.57; East = 0.56),  show the western area may contribute more N loading to the estuary than the eastern area, with the average delivery index value of the western area (41) almost 80% higher than the eastern area (23; Figure 5C), suggesting a greater need for N source controls within the western development.
 
-```{r, plot5c, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5C: Nitrogen Delivery Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas. Darker colors denote higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency. "}
+```{r, plot5C, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5C: Nitrogen Delivery Index within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas. Darker colors denote higher N delivery based on normalized loading from different land covers multiplied by the N Transport Efficiency. "}
 
 from <- c(seq(0,90,10), NA)
 to <- c(seq(10,100,10), NA)
