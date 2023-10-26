@@ -18,6 +18,7 @@ bibliography: manuscript.bib
 output:
   pdf_document: default
   word_document:
+    keep_md: true
     reference_docx: manuscript_template.docx
   html_document:
     df_print: paged
@@ -75,7 +76,7 @@ niantic_huc_id <- nsink_get_huc_id("Niantic River")$huc_12
 ```{r get-data, eval=TRUE, cache=FALSE, include=FALSE}
 # eval = TRUE if you want to download the data
 # Get data for selected HUC
-niantic_download <- nsink_get_data(niantic_huc_id, 
+niantic_download <- nsink::nsink_get_data(niantic_huc_id, 
                                   data_dir = "nsink_niantic_data/")
 ```
 
