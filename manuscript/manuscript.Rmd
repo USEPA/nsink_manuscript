@@ -203,7 +203,7 @@ niantic_static_maps <- nsink_generate_static_maps(niantic_data, niantic_removal,
 
 These static maps can be quickly plotted with the convenience function `nsink_plot()` using the `map` argument to identify map type. For example, `nsink_plot(niantic_static_maps, map = "removal")` will create a plot of Nitrogen Removal Efficiency (Figure 1).  The other `map` argument options are "transport" and "delivery" (Figures 2-3). These plots are designed for exploration and not necessarily for high quality maps.  For higher quality maps, the source data can be plotted in software of a user's choice (e.g. QGIS, `ggplot2`).
 
-```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated percentage of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs.", echo=FALSE}
+```{r plot1, fig.cap = "Figure 1: Nitrogen Removal Efficiency (range 0 to 1) for the Niantic River HUC-12, showing the estimated fraction of N removed within three types of landscape N sinks - wetlands, streams, lakes/ponds/reservoirs.", echo=FALSE}
 
 nsink_plot(niantic_static_maps, map = "removal")
 ```
@@ -211,7 +211,7 @@ nsink_plot(niantic_static_maps, map = "removal")
 
 nsink_plot(niantic_static_maps, map = "transport")
 ```
-```{r plot3, fig.cap = "Figure 3: Nitrogen Delivery Index (range 0 to 100%) for the Niantic River HUC-12, showing a relative measure of the estimated N being transported from a location within a mapped watershed to receiving waters. N loading estimates are based on land cover classes, making use of peer-reviewed published data, and normalized, with a range of 0 to 1. These N loading factors are then multiplied by the N Transport Efficiency (range 0 to 100) from a given location within a watershed, to arrive at the NDI.", echo=FALSE}
+```{r plot3, fig.cap = "Figure 3: Nitrogen Delivery Index (range 0 to 100%) for the Niantic River HUC-12, showing a relative measure of the estimated N being transported from a location within a mapped watershed to receiving waters. N loading estimates are based on land cover classes, making use of peer-reviewed published data, and normalized, with a range of 0 to 1. These N loading factors are then multiplied by the N Transport Efficiency (range 0 to 100) from a given location within a watershed, to arrive at the N Delivery Index.", echo=FALSE}
 
 nsink_plot(niantic_static_maps, map = "delivery")
 ```
@@ -324,7 +324,7 @@ The maps produced by N-Sink can help prioritize source controls, sink protection
 
 Similarly, sources of N that are contributing relatively more N due to their location within the catchment can be highlighted using the `nsink` static maps. The N Delivery Index map combines N sources with N transport to highlight developed areas that are located on "leakier" parts of a catchment. Figure 5A displays a high resolution image of land cover in the same watershed as Example 1, with two developed areas circled.
 
-```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas (Table 4)."}
+```{r plot5a, include = TRUE, echo = FALSE, warning = FALSE, fig.cap = "Figure 5A: Land cover within an area of interest in the Niantic River HUC-12, highlighting two similarly developed areas (summary given in Table 4)."}
 
 box <- c(1950000, 1953800, 2289700, 2293100)
 e <- ext(box)
@@ -359,14 +359,14 @@ ggsave("fig5a.jpg", map, height = 6.5, width = 7.5)
 
 
 ```{r table4-build, eval = TRUE, include = FALSE}
-table3 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegetated",
+table4 <- data.frame("Land Cover" = c("Developed", "Agriculture", "Forest/Vegetated",
                                       "Wetlands", "Other"),
                      "West (%)" = c("23","7","64","6","0"),
                      "East (%)" = c("20","0","61","18","1"),
                      check.names = FALSE)
 ```
 ```{r table4, include = TRUE, echo = FALSE}
-knitr::kable(table3, caption = "Table 4: Summary of land cover in highlighted areas of interest.")
+knitr::kable(table4, caption = "Table 4: Summary of land cover in highlighted areas of interest.")
 ```
 
 
